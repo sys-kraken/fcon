@@ -1,0 +1,22 @@
+{
+  "name": "FCon Converter",
+  "short_name": "FCon",
+  "description": "Free YouTube to MP3 & MP4 Converter",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0b",
+  "theme_color": "#e8b04b",
+  "icons": [
+    {
+      "src": "/assets/soundrip.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/soundrip.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

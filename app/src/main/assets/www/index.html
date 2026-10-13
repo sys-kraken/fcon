@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+
+<head>
+
+  <meta charset="UTF-8">
+  <!-- Force browser to check server for new version every time -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FCon</title>
+  <meta name="description"
+    content="Convert YouTube videos to MP3, FLAC, AAC or download MP4, MKV up to 4K. Free, unlimited, no account needed.">
+  <meta name="keywords"
+    content="youtube to mp3, youtube to mp4, yt to mp3, youtube converter, youtube mp3 downloader, convert youtube to mp4, 4k youtube downloader, free mp3 converter, youtube to wav, youtube to flac, youtube audio downloader, mp3 extractor, soundrip">
+  <meta name="author" content="FCon">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="theme-color" content="#e8b04b">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="canonical" href="https://soundrip.app/">
+  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="icon" type="image/png" href="/assets/soundrip.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://soundrip.app/">
+  <meta property="og:title" content="FCon — Free YouTube to MP3 & MP4 Converter | 4K">
+  <meta property="og:description"
+    content="Extract crystal-clear audio or download HD/4K video from any YouTube video. MP3, FLAC, MP4 — free, instant, no account required.">
+  <meta property="og:image" content="https://soundrip.app/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="FCon">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FCon — Free YouTube to MP3 & MP4 Converter">
+  <meta name="twitter:description"
+    content="Convert any YouTube video to MP3, FLAC or download MP4/4K video. Free, unlimited.">
+  <meta name="twitter:image" content="https://soundrip.app/og-image.jpg">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FCon">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "FCon",
+  "url": "https://soundrip.app/",
+  "description": "Free YouTube to MP3 & MP4 converter. Extract audio or download video up to 4K from any YouTube video. No sign-up required.",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "All",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is FCon completely free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, completely free — no sign-up, no subscription, no hidden fees." } },
+    { "@type": "Question", "name": "How long does YouTube to MP3 conversion take?", "acceptedAnswer": { "@type": "Answer", "text": "Typically 3–8 seconds for a standard 3–5 minute video." } },
+    { "@type": "Question", "name": "Are there any file size or length limits?", "acceptedAnswer": { "@type": "Answer", "text": "Videos up to 2 hours are supported. Very large files may be refused if the server is short on space." } },
+    { "@type": "Question", "name": "Can I download YouTube videos in 4K?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Select MP4, WEBM, or MKV format and choose 4K (2160p) resolution. Quality depends on the source video." } }
+  ]
+}
+</script>
+
+<script>
+  (function() {
+    const CURRENT_VERSION = '2.2'; // Update this whenever you make a big change
+    const savedVersion = localStorage.getItem('site_version');
+
+    if (savedVersion && savedVersion !== CURRENT_VERSION) {
+      localStorage.setItem('site_version', CURRENT_VERSION);
+      // This performs a hard refresh, clearing the local cache for this page
+      window.location.reload(true); 
+    } else {
+      localStorage.setItem('site_version', CURRENT_VERSION);
+    }
+  })();
+</script>
+
+<style>
+    .upd-version { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; word-break: break-word; }
+    .upd-btn { width: 100%; padding: 11px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+    .upd-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+    .upd-btn.go { background: var(--gold); border-color: var(--gold); color: #0a0a0b; font-weight: 600; }
+    .upd-btn:disabled { opacity: .55; cursor: default; }
+    .upd-msg { font-size: 12px; color: var(--muted); margin: 8px 2px 14px; line-height: 1.45; min-height: 1em; }
+  </style>
+</head>
+
+<body>
+
+
+  <!-- ─── IN-APP BROWSER BANNER ─────────────────────────────────────────────── -->
+  <div class="iab-banner" id="iabBanner" role="alert" aria-live="polite" style="display:none">
+    <span class="iab-icon">⚠️</span>
+    <div class="iab-text">
+      <strong>Better experience available.</strong>
+      You're using an in-app browser — downloads may not work correctly.
+      <span id="iabName"></span>
+    </div>
+    <div class="iab-actions">
+      <button class="iab-open" id="iabOpenBtn" onclick="openInExternalBrowser()">Open in Browser</button>
+      <button class="iab-dismiss" onclick="dismissIabBanner()" aria-label="Dismiss banner">✕</button>
+    </div>
+  </div> <!-- ← CLOSED HERE, support banner is now a sibling below -->
+
+  <!-- ─── SUPPORT REMINDER BANNER ─────────────────────────────────────────────
+  <div class="support-banner" id="supportBanner" role="alert" style="display:none">
+    <div class="support-text">
+      <strong>Submit a
+        Report:</strong> If you're experiencing issues, please contact
+      <a href="https://facebook.com/franklin.tripole.3" target="_blank">Franklin Tripole</a> on Facebook
+      or email <a href="mailto:nzeus624@gmail.com">nzeus624@gmail.com</a>
+    </div>
+  </div>
+   -->
+
+  <style>
+    .iab-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 99999;
+      background: linear-gradient(135deg, #1a0a00, #2a1200);
+      border-bottom: 2px solid #e8b04b;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 20px rgba(232, 176, 75, 0.25);
+      animation: iabSlideDown 0.4s ease;
+    }
+
+    @keyframes iabSlideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .iab-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .iab-text {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #f0f0f8;
+      line-height: 1.6;
+      letter-spacing: 0.3px;
+      min-width: 180px;
+    }
+
+    .iab-text strong {
+      color: #e8b04b;
+    }
+
+    #iabName {
+      color: #aaa;
+      margin-left: 4px;
+    }
+
+    .iab-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .iab-open {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      background: #e8b04b;
+      border: none;
+      color: #000;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .iab-open:hover {
+      opacity: 0.85;
+    }
+
+    .iab-dismiss {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #6b6b8a;
+      font-size: 14px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .iab-dismiss:hover {
+      color: #f0f0f8;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    body.iab-active header {
+      top: var(--iab-h, 58px) !important;
+    }
+
+    @media (max-width: 600px) {
+      .iab-banner {
+        padding: 10px 14px;
+        gap: 8px;
+      }
+
+      .iab-text {
+        font-size: 10px;
+      }
+
+      .iab-open {
+        font-size: 9px;
+        padding: 7px 11px;
+      }
+    }
+
+    .support-banner {
+      background: #111120;
+      border-bottom: 1px solid rgba(196, 37, 51, 0.3);
+      padding: 10px 20px;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      /* ← ADD THIS */
+      left: 0;
+      right: 0;
+      z-index: 9999;
+    }
+
+    .support-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #f0f0f8;
+      letter-spacing: 0.5px;
+    }
+
+    .support-text a {
+      color: rgba(232, 176, 75, 0.75);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .support-text a:hover {
+      text-decoration: underline;
+    }
+
+    /* Fix header & mobile nav when support banner is active */
+    body.support-active header {
+      top: var(--support-h, 38px) !important;
+    }
+
+    body.support-active .mobile-nav {
+      top: calc(var(--support-h, 38px) + 61px) !important;
+    }
+
+    /* Mobile support banner */
+    @media (max-width: 600px) {
+      .support-banner {
+        padding: 8px 14px;
+      }
+
+      .support-text {
+        font-size: 10px;
+        line-height: 1.6;
+      }
+    }
+  </style>
+
+  <script>
+    // Function to show the Support Banner
+    function showSupportBanner() {
+      const sBanner = document.getElementById('supportBanner');
+      if (sBanner) {
+        sBanner.style.display = 'block';
+        document.body.classList.add('support-active');
+        // Measure actual height (same pattern as IAB banner)
+        requestAnimationFrame(() => {
+          const h = sBanner.offsetHeight;
+          document.documentElement.style.setProperty('--support-h', h + 'px');
+        });
+      }
+    }
+
+    (function detectInAppBrowser() {
+      if (window.FConApp) return;
+      const ua = navigator.userAgent || '';
+      const IAB_RULES = [
+        { pattern: /Instagram/i, name: 'Instagram' },
+        { pattern: /FBAN|FBAV|FB_IAB|FBIOS/i, name: 'Facebook' },
+        { pattern: /\[FB[A-Z]+\]/i, name: 'Facebook' },
+        { pattern: /Twitter|TwitterAndroid|twttr/i, name: 'Twitter / X' },
+        { pattern: /TikTok|musical_ly/i, name: 'TikTok' },
+        { pattern: /Snapchat/i, name: 'Snapchat' },
+        { pattern: /LinkedInApp/i, name: 'LinkedIn' },
+        { pattern: /Pinterest/i, name: 'Pinterest' },
+        { pattern: /Line\/\d/i, name: 'LINE' },
+        { pattern: /WhatsApp/i, name: 'WhatsApp' },
+        { pattern: /Telegram/i, name: 'Telegram' },
+        { pattern: /Discord/i, name: 'Discord' },
+        { pattern: /Slack/i, name: 'Slack' },
+        { pattern: /GSA\//i, name: 'Google Search App' },
+        {
+          pattern: /wv\)|; wv\b/i,
+          guard: () => !/Chrome\/\d/.test(ua) || /wv\)/.test(ua),
+          name: 'In-App Browser'
+        },
+        {
+          pattern: /iPhone|iPad|iPod/i,
+          guard: () => !/Safari\//.test(ua) && !/CriOS\//.test(ua) && !/FxiOS\//.test(ua),
+          name: 'In-App Browser'
+        },
+      ];
+
+      let detectedName = null;
+      for (const rule of IAB_RULES) {
+        if (rule.pattern.test(ua)) {
+          if (!rule.guard || rule.guard()) { detectedName = rule.name; break; }
+        }
+      }
+
+      // --- LOGIC CHANGE START ---
+      if (!detectedName) {
+        showSupportBanner(); // Show support banner immediately if NOT an in-app browser
+        return;
+      }
+      // --- LOGIC CHANGE END ---
+
+      const banner = document.getElementById('iabBanner');
+      const nameEl = document.getElementById('iabName');
+      const openBtn = document.getElementById('iabOpenBtn');
+
+      nameEl.textContent = '(' + detectedName + ')';
+      banner.style.display = 'flex';
+
+      requestAnimationFrame(() => {
+        const h = banner.offsetHeight;
+        document.documentElement.style.setProperty('--iab-h', h + 'px');
+        document.body.classList.add('iab-active');
+      });
+
+      window._iabCurrentUrl = window.location.href;
+      const isAndroid = /Android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+      if (isAndroid) {
+        openBtn.addEventListener('click', function () {
+          const intentUrl = 'intent://' + window.location.href.replace(/^https?:\/\//, '')
+            + '#Intent;scheme=https;action=android.intent.action.VIEW;'
+            + 'category=android.intent.category.BROWSABLE;package=com.android.chrome;end';
+          window.location.href = intentUrl;
+        });
+      } else if (isIOS) {
+        openBtn.textContent = 'Copy Link';
+        openBtn.addEventListener('click', function () {
+          navigator.clipboard.writeText(window._iabCurrentUrl).then(() => {
+            openBtn.textContent = 'Copied!';
+            setTimeout(() => { openBtn.textContent = 'Copy Link'; }, 2500);
+            if (typeof showToast === 'function')
+              showToast('Link copied!', 'Open Safari and paste the URL to continue.');
+          }).catch(() => {
+            window.prompt('Copy this URL and open it in Safari:', window._iabCurrentUrl);
+          });
+        });
+      }
+    })();
+
+    function dismissIabBanner() {
+      const banner = document.getElementById('iabBanner');
+      banner.style.transition = 'opacity 0.3s, transform 0.3s';
+      banner.style.opacity = '0';
+      banner.style.transform = 'translateY(-100%)';
+      setTimeout(() => {
+        banner.style.display = 'none';
+        document.body.classList.remove('iab-active');
+        document.documentElement.style.removeProperty('--iab-h');
+
+        // Show support banner after IAB banner is dismissed
+        showSupportBanner();
+      }, 300);
+    }
+
+    function openInExternalBrowser() {
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+    }
+  </script>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+    <div class="side-logo">
+      <span class="side-logo-icon"><img src="/assets/soundrip.png" alt="FCon" /></span>
+      <span class="side-logo-wrap"><span class="side-logo-text">FCon</span><span class="side-logo-sub">MEDIA CONVERTER</span></span>
+    </div>
+
+    <div class="side-section side-recent">
+      <div class="side-label">Recent <button class="side-clear" id="clearRecentBtn" onclick="clearRecent()">clear</button></div>
+      <div id="recentList" class="recent-list"><div class="recent-empty">No conversions yet.</div></div>
+    </div>
+    <div class="side-section" id="appUpdate">
+      <div class="side-label">App</div>
+      <div class="upd-version" id="updVersion"></div>
+      <button class="upd-btn" id="updBtn" onclick="fconUpdateClick()">Check for updates</button>
+      <div class="upd-msg" id="updMsg"></div>
+    </div>
+  </aside>
+  <div class="side-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
+
+  <!-- MOBILE TOP BAR -->
+  <header class="topbar" role="banner">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Open menu"><span></span><span></span><span></span></button>
+    <a href="/" class="logo" aria-label="FCon Home">FCon</a>
+  </header>
+
+  <main role="main" id="main-content">
+
+    <!-- CONVERTER TOOL -->
+    <section class="converter-wrap" id="convert" aria-labelledby="converter-heading">
+      <div class="tool-badge"><span class="tool-dot"></span>AUDIO &amp; VIDEO · FREE · NO LIMITS</div>
+      <div class="converter-card">
+        <h2 class="card-label" id="converter-heading">// PASTE YOUR VIDEO URL BELOW</h2>
+
+        <div class="input-row" role="search">
+          <label for="urlInput" class="visually-hidden">Video URL</label>
+          <input type="url" class="url-input" id="urlInput" name="youtube-url"
+            placeholder="Paste YouTube, Facebook, or Instagram URL..." aria-label="Paste your video URL here"
+            autocomplete="off" spellcheck="false" oninput="validateUrl(this.value)" />
+          <button class="paste-btn" onclick="pasteFromClipboard()" aria-label="Paste URL from clipboard">PASTE</button>
+        </div>
+
+        <div class="options-row" role="group" aria-label="Conversion settings">
+          <div class="option-group">
+            <label for="formatSelect">Output Format</label>
+            <select id="formatSelect" name="output-format" onchange="onFormatChange()">
+              <optgroup label="AUDIO">
+                <option value="mp3">MP3 — Universal</option>
+
+                <option value="flac">FLAC — Hi-Res</option>
+                <option value="aac">AAC — Compact</option>
+
+              </optgroup>
+              <optgroup label="VIDEO">
+                <option value="mp4">MP4 — Universal HD</option>
+
+                <option value="mkv">MKV — Max Quality</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Audio quality (hidden for video) -->
+          <div class="option-group" id="qualityGroup">
+            <label for="qualitySelect">Audio Quality</label>
+            <select id="qualitySelect" name="audio-quality">
+              <option value="320">320 kbps — Studio</option>
+              <option value="256">256 kbps — High</option>
+              <option value="192">192 kbps — Standard</option>
+              <option value="128">128 kbps — Compact</option>
+              <option value="64">64 kbps — Lightweight</option>
+            </select>
+          </div>
+
+          <!-- Video resolution (hidden for audio) -->
+          <div class="option-group" id="resGroup" style="display:none">
+            <label for="resolutionSelect">Resolution</label>
+            <select id="resolutionSelect" name="resolution">
+              <option value="2160">4K — 2160p</option>
+              <option value="1440">2K — 1440p</option>
+              <option value="1080" selected>FHD — 1080p</option>
+              <option value="720">HD — 720p</option>
+              <option value="480">SD — 480p</option>
+              <option value="360">Low — 360p</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label for="modeSelect">Mode</label>
+            <select id="modeSelect" name="conversion-mode" onchange="onModeChange()">
+              <option value="full">Full Track</option>
+              <option value="trim">Custom Trim</option>
+            </select>
+          </div>
+
+          <div class="option-group" id="trimGroup" style="display:none; flex-direction:column; grid-column: 1 / -1;">
+            <label>Trim Range: <span id="trimValues" style="color:#7eb8f7; margin-left:8px;">00:00 -
+                00:00</span></label>
+            <div class="range-slider-wrapper">
+              <div class="range-track" id="rangeTrack"></div>
+              <input type="range" id="startSlider" min="0" max="100" value="0" oninput="updateTrimUI()">
+              <input type="range" id="endSlider" min="0" max="100" value="100" oninput="updateTrimUI()">
+            </div>
+            <div class="trim-labels">
+              <span id="trimMinLabel">00:00</span>
+              <span id="trimMaxLabel">00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="convert-btn" onclick="startConvert()" aria-label="Start converting">
+          ▶ &nbsp; CONVERT NOW
+        </button>
+
+        <!-- Progress -->
+        <div class="progress-section" id="progressSection" role="status" aria-live="polite">
+          <div class="progress-info">
+            <span class="progress-label pulse" id="progressLabel">Processing…</span>
+            <span class="progress-pct" id="progressPct">0%</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-steps" aria-hidden="true">
+            <div class="step-item" id="step1">ANALYZE</div>
+            <div class="step-item" id="step2">EXTRACT</div>
+            <div class="step-item" id="step3">ENCODE</div>
+            <div class="step-item" id="step4">FINALIZE</div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div class="result-section" id="resultSection" role="alert" aria-live="assertive">
+          <div class="result-top">
+            <div class="result-thumb" id="resultThumb" aria-hidden="true">🎵</div>
+            <div class="result-meta">
+              <div class="result-title" id="resultTitle">YouTube Audio Track</div>
+              <div class="result-author" id="resultAuthor"></div>
+              <div class="result-info" id="resultInfo">MP3 · 320 kbps</div>
+            </div>
+            <div class="waveform" id="waveform" aria-hidden="true"></div>
+          </div>
+          <button class="download-btn" id="downloadBtn" onclick="triggerDownload()"
+            aria-label="Download converted file">
+            ⬇ &nbsp; DOWNLOAD FILE
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="alert" aria-live="assertive">
+    <div class="toast-title" id="toastTitle">Notification</div>
+    <div class="toast-msg" id="toastMsg">Message here</div>
+  </div>
+
+  <script src="/config.js"></script>
+  <script>
+    // ─── CONFIG ──────────────────────────────────────────────────────────────────
+    // The converter API. Set window.FCON_API_BASE in config.js (e.g. 'https://fcon-api.onrender.com');
+    // when it is empty the page talks to the domain it was loaded from.
+    const API_BASE = (window.FCON_API_BASE || location.origin).replace(/\/$/, '');
+
+    // ─── FORMAT DETECTION ────────────────────────────────────────────────────────
+    const VIDEO_FMTS = ['mp4', 'webm', 'mkv'];
+    function isVideoFormat(fmt) { return VIDEO_FMTS.includes(fmt); }
+
+    function onFormatChange() {
+      const fmt = document.getElementById('formatSelect').value;
+      const isVideo = isVideoFormat(fmt);
+      document.getElementById('resGroup').style.display = isVideo ? '' : 'none';
+      document.getElementById('qualityGroup').style.display = isVideo ? 'none' : '';
+      const info = document.getElementById('resultInfo');
+      if (info.textContent && isVideo) {
+        const res = document.getElementById('resolutionSelect').value;
+        info.textContent = `${fmt.toUpperCase()} · ${res}p`;
+      }
+    }
+
+    // ─── STATE ───────────────────────────────────────────────────────────────────
+    let currentDownloadUrl = null;
+    let currentFilename = null;
+    let isConverting = false;
+    let isDownloading = false;
+    let videoDuration = 0;
+
+    // ─── TRIM ────────────────────────────────────────────────────────────────────
+    function formatTime(seconds) {
+      seconds = parseInt(seconds, 10);
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateTrimUI() {
+      if (videoDuration === 0) return;
+      let sv = parseInt(document.getElementById('startSlider').value);
+      let ev = parseInt(document.getElementById('endSlider').value);
+      if (sv >= ev) {
+        if (document.activeElement.id === 'startSlider') { sv = ev - 1; document.getElementById('startSlider').value = sv; }
+        else { ev = sv + 1; document.getElementById('endSlider').value = ev; }
+      }
+      document.getElementById('trimValues').textContent = `${formatTime(sv)} - ${formatTime(ev)}`;
+      const p1 = (sv / videoDuration) * 100;
+      const p2 = (ev / videoDuration) * 100;
+      document.getElementById('rangeTrack').style.background =
+        `linear-gradient(to right, rgba(232,176,75,0.2) ${p1}%, #7eb8f7 ${p1}%, #7eb8f7 ${p2}%, rgba(232,176,75,0.2) ${p2}%)`;
+    }
+
+    function onModeChange() {
+      const mode = document.getElementById('modeSelect').value;
+      document.getElementById('trimGroup').style.display = mode === 'trim' ? 'flex' : 'none';
+    }
+
+    // ─── UTILITIES ───────────────────────────────────────────────────────────────
+    function extractVideoId(url) {
+      try {
+        const u = new URL(url);
+        if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0];
+        if (u.hostname.includes('youtube.com')) {
+          if (u.pathname === '/watch') return u.searchParams.get('v');
+          const m = u.pathname.match(/\/(embed|shorts|v)\/([^/?&]+)/);
+          if (m) return m[2];
+        }
+      } catch (_) { }
+      return null;
+    }
+
+    function isSupportedUrl(url) {
+      if (!url) return false;
+      try {
+        const host = new URL(url).hostname.toLowerCase();
+        return host.includes('youtube.com') || host.includes('youtu.be') ||
+          host.includes('facebook.com') || host.includes('fb.watch') ||
+          host.includes('instagram.com');
+      } catch (_) { return false; }
+    }
+
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    function buildWaveform() {
+      const wf = document.getElementById('waveform');
+      wf.innerHTML = '';
+      [20, 40, 70, 55, 90, 65, 80, 50, 75, 45, 85, 60, 95, 70, 55, 80, 40, 65, 50, 85].forEach((h, i) => {
+        const bar = document.createElement('div');
+        bar.className = 'wave-bar';
+        bar.style.height = h + '%';
+        bar.style.animationDelay = (i * 0.08) + 's';
+        wf.appendChild(bar);
+      });
+    }
+
+    // ─── PROGRESS ────────────────────────────────────────────────────────────────
+    const STEP_IDS = ['step1', 'step2', 'step3', 'step4'];
+
+    function setProgress(activeIdx, pct, label) {
+      STEP_IDS.forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.remove('active', 'done');
+        if (i < activeIdx) el.classList.add('done');
+        if (i === activeIdx) el.classList.add('active');
+      });
+      document.getElementById('progressLabel').textContent = label;
+      document.getElementById('progressPct').textContent = Math.round(pct) + '%';
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.querySelector('.progress-bar').setAttribute('aria-valuenow', Math.round(pct));
+    }
+
+    function showProgress() {
+      document.getElementById('progressSection').classList.add('active');
+      document.getElementById('resultSection').classList.remove('active');
+    }
+
+    function hideProgress() {
+      document.getElementById('progressSection').classList.remove('active');
+      STEP_IDS.forEach(id => document.getElementById(id).classList.remove('active', 'done'));
+      document.getElementById('progressFill').style.width = '0%';
+      document.getElementById('progressPct').textContent = '0%';
+    }
+
+    // ─── CONVERT ─────────────────────────────────────────────────────────────────
+    async function startConvert() {
+      if (isConverting) return;
+
+      const url = document.getElementById('urlInput').value.trim();
+      const format_type = document.getElementById('formatSelect').value;
+      const quality = document.getElementById('qualitySelect').value;
+      const resolution = document.getElementById('resolutionSelect').value;
+      const isVideo = isVideoFormat(format_type);
+      const mode = document.getElementById('modeSelect').value;
+      const startTime = formatTime(document.getElementById('startSlider').value);
+      const endTime = formatTime(document.getElementById('endSlider').value);
+      const jobId = 'job_' + Date.now() + Math.floor(Math.random() * 1000);
+
+      if (!isSupportedUrl(url)) {
+        showToast('Invalid URL', 'Please paste a valid YouTube, Facebook, or Instagram link.');
+        document.getElementById('urlInput').focus();
+        return;
+      }
+      if (mode === 'trim' && videoDuration === 0) {
+        showToast('No duration', 'Wait for video info to load before trimming.');
+        return;
+      }
+
+      isConverting = true;
+      currentDownloadUrl = null;
+      currentFilename = null;
+
+      const btn = document.querySelector('.convert-btn');
+      const dlBtn = document.getElementById('downloadBtn');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ &nbsp; PROCESSING…';
+      dlBtn.style.display = 'none';
+
+      showProgress();
+      setProgress(0, 10, 'Starting background job…');
+
+      try {
+        await delay(300);
+
+        // STEP 1: Start the conversion in the background
+        const res = await fetch(API_BASE + '/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url, format: format_type, quality, resolution,
+            mode, start_time: startTime, end_time: endTime, job_id: jobId
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+
+        setProgress(1, 20, isVideo ? 'Fetching video stream…' : 'Extracting audio stream…');
+
+        // STEP 2: Watch the progress stream inside a Promise
+        const finalData = await new Promise((resolve, reject) => {
+          const evtSource = new EventSource(API_BASE + '/stream/' + jobId);
+
+          evtSource.onmessage = async function (event) {
+            if (event.data === 'ERROR') {
+              evtSource.close();
+              try {
+                const er = await (await fetch(API_BASE + '/result/' + jobId)).json();
+                reject(new Error(er.error || 'Conversion failed. Please try again.'));
+              } catch (_) {
+                reject(new Error('Conversion failed. Please try again.'));
+              }
+              return;
+            }
+
+            const prog = parseFloat(event.data);
+            if (!isNaN(prog)) {
+              const overallPct = 20 + (prog * 0.7); // Scale the progress bar smoothly
+              setProgress(1, overallPct, isVideo
+                ? `Extracting video… ${Math.round(prog)}%`
+                : `Extracting audio… ${Math.round(prog)}%`);
+
+              if (prog >= 100) {
+                setProgress(2, 95, 'Encoding & finalizing…');
+              }
+            }
+
+            // STEP 3: When 100% is reached, ask the /result route for the download link!
+            if (event.data === '100' || event.data === 'DONE') {
+              evtSource.close();
+              try {
+                const resultRes = await fetch(API_BASE + '/result/' + jobId);
+                const resultData = await resultRes.json();
+
+                if (!resultRes.ok || resultData.error) {
+                  throw new Error(resultData.error || 'Could not retrieve final file.');
+                }
+                resolve(resultData); // Pass the final JSON payload out of the Promise
+              } catch (err) {
+                reject(err);
+              }
+            }
+          };
+
+          evtSource.onerror = () => {
+            evtSource.close();
+            reject(new Error('Lost connection to the progress stream.'));
+          };
+        });
+
+        // --- ALL DONE! UPDATE THE UI ---
+        setProgress(3, 100, 'Ready!');
+        await delay(350);
+
+        currentDownloadUrl = finalData.url.startsWith('/') ? API_BASE + finalData.url : finalData.url;
+        currentFilename = finalData.filename || `output.${format_type}`;
+
+        hideProgress();
+
+        const vid = extractVideoId(url);
+        document.getElementById('resultThumb').innerHTML =
+          `<img src="https://img.youtube.com/vi/${vid}/mqdefault.jpg"
+              alt="Video thumbnail"
+              style="width:100%;height:100%;object-fit:cover;"
+              onerror="this.parentElement.innerHTML='${isVideo ? '🎬' : '🎵'}'">`;
+
+        const displayName = (finalData.title || currentFilename).replace(/\.[^.]+$/, '') || 'Track';
+        document.getElementById('resultTitle').textContent = displayName;
+        document.getElementById('resultAuthor').textContent = '';
+        document.getElementById('resultInfo').textContent = isVideo
+          ? `${format_type.toUpperCase()} · ${resolution}p`
+          : `${format_type.toUpperCase()} · ${quality} kbps`;
+
+        document.getElementById('resultSection').classList.add('active');
+        dlBtn.style.display = 'flex';
+        dlBtn.disabled = false;
+        dlBtn.innerHTML = `⬇ &nbsp; DOWNLOAD ${isVideo ? 'VIDEO' : 'FILE'}`;
+
+        buildWaveform();
+        recordConversion(displayName, document.getElementById('resultInfo').textContent, currentDownloadUrl, currentFilename);
+        showToast('Ready!', `"${displayName}" — click Download to save.`);
+
+      } catch (err) {
+        hideProgress();
+        console.error('[FCon convert]', err);
+        showToast('Failed', err.message || 'Conversion error — please try again.');
+      } finally {
+        isConverting = false;
+        btn.disabled = false;
+        btn.innerHTML = '▶ &nbsp; CONVERT NOW';
+      }
+    }
+
+    // ─── DOWNLOAD ────────────────────────────────────────────────────────────────
+    async function triggerDownload() {
+      if (!currentDownloadUrl || isDownloading) return;
+      if (window.FConApp) {
+        const saved = FConApp.save(currentDownloadUrl.split('/').pop());
+        if (saved.indexOf('ERR:') === 0) {
+          showToast('Error', saved.slice(4));
+        } else {
+          showToast('Saved!', saved);
+          document.getElementById('downloadBtn').innerHTML = '⬇ &nbsp; SAVE AGAIN';
+        }
+        return;
+      }
+
+      isDownloading = true;
+      const dlBtn = document.getElementById('downloadBtn');
+      dlBtn.disabled = true;
+      dlBtn.innerHTML = '⏳ &nbsp; DOWNLOADING…';
+
+      showProgress();
+      setProgress(3, 0, 'Fetching file from server…');
+
+      try {
+        const res = await fetch(currentDownloadUrl);
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+        const contentLength = res.headers.get('content-length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+        const reader = res.body.getReader();
+        const chunks = [];
+        let received = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          if (total) setProgress(3,
+            Math.min(99, Math.round((received / total) * 100)),
+            `Downloading… ${Math.round((received / total) * 100)}%`);
+        }
+
+        if (received === 0) throw new Error('Empty file received.');
+
+        setProgress(3, 100, 'Saving…');
+        await delay(150);
+
+        const mime = res.headers.get('content-type') || 'application/octet-stream';
+        const blob = new Blob(chunks, { type: mime });
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = currentFilename || 'fcon_output.mp4';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+
+        hideProgress();
+        document.getElementById('resultSection').classList.add('active');
+        showToast('Downloaded!', currentFilename + ' saved successfully.');
+        dlBtn.innerHTML = '⬇ &nbsp; DOWNLOAD AGAIN';
+
+      } catch (err) {
+        hideProgress();
+        document.getElementById('resultSection').classList.add('active');
+        console.error('[FCon download]', err);
+        showToast('Error', err.message + ' — trying fallback…');
+        window.open(currentDownloadUrl, '_blank');
+        dlBtn.innerHTML = '⬇ &nbsp; RETRY DOWNLOAD';
+      } finally {
+        isDownloading = false;
+        dlBtn.disabled = false;
+      }
+    }
+
+    // ─── URL PREVIEW ─────────────────────────────────────────────────────────────
+    function validateUrl(val) {
+      const input = document.getElementById('urlInput');
+      const valid = isSupportedUrl(val);
+      const fmt = document.getElementById('formatSelect').value;
+      const isVideo = isVideoFormat(fmt);
+
+      input.style.borderColor = val
+        ? (valid ? 'rgba(126,184,247,0.5)' : 'rgba(232,176,75,0.4)')
+        : '';
+
+      if (valid) {
+        const res = document.getElementById('resolutionSelect').value;
+        const quality = document.getElementById('qualitySelect').value;
+        let thumbHtml = '', platformId = 'Video';
+
+        if (val.includes('youtube.com') || val.includes('youtu.be')) {
+          const id = extractVideoId(val);
+          platformId = `YouTube ID: ${id}`;
+          thumbHtml = `<img src="https://img.youtube.com/vi/${id}/mqdefault.jpg"
+          style="width:100%;height:100%;object-fit:cover;opacity:0.5;"
+          onerror="this.parentElement.innerHTML='${isVideo ? '🎬' : '🎵'}'">`;
+        } else if (val.includes('facebook.com') || val.includes('fb.watch')) {
+          thumbHtml = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;opacity:0.8;">📘</div>`;
+          platformId = 'Facebook Video';
+        } else if (val.includes('instagram.com')) {
+          thumbHtml = `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2rem;opacity:0.8;">📸</div>`;
+          platformId = 'Instagram Video';
+        }
+
+        document.getElementById('resultThumb').innerHTML = thumbHtml;
+        document.getElementById('resultTitle').textContent = 'Media detected — click Convert';
+        document.getElementById('resultAuthor').textContent = '';
+        document.getElementById('resultInfo').textContent = isVideo
+          ? `${fmt.toUpperCase()} · ${res}p`
+          : `${fmt.toUpperCase()} · ${quality} kbps — ${platformId}`;
+
+        document.getElementById('resultSection').classList.add('active');
+        document.getElementById('downloadBtn').style.display = 'none';
+        buildWaveform();
+        resetResolutions();
+        fetchVideoInfo(val);
+
+      } else if (!val) {
+        document.getElementById('resultSection').classList.remove('active');
+        resetResolutions();
+      }
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('urlInput').value = text;
+        validateUrl(text);
+        showToast('Pasted!', 'URL ready — click Convert.');
+      } catch {
+        showToast('Paste manually', 'Press Ctrl+V / Cmd+V in the field.');
+      }
+    }
+
+    async function fetchVideoInfo(url) {
+      const resSelect = document.getElementById('resolutionSelect');
+      document.getElementById('resultInfo').textContent = 'Checking video quality…';
+      try {
+        const res = await fetch(API_BASE + '/info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+
+        if (data.max_resolution) {
+          const maxRes = data.max_resolution;
+          let firstAvailable = null;
+          Array.from(resSelect.options).forEach(opt => {
+            opt.text = opt.text.replace(' (Unavailable)', '');
+            const optRes = parseInt(opt.value, 10);
+            if (optRes > maxRes) {
+              opt.disabled = true;
+              opt.text += ' (Unavailable)';
+            } else {
+              opt.disabled = false;
+              if (!firstAvailable) firstAvailable = opt.value;
+            }
+          });
+          if (parseInt(resSelect.value, 10) > maxRes && firstAvailable) {
+            resSelect.value = firstAvailable;
+          }
+          onFormatChange();
+        }
+
+        if (data.duration) {
+          videoDuration = data.duration;
+          document.getElementById('startSlider').max = videoDuration;
+          document.getElementById('endSlider').max = videoDuration;
+          document.getElementById('startSlider').value = 0;
+          document.getElementById('endSlider').value = videoDuration;
+          document.getElementById('trimMaxLabel').textContent = formatTime(videoDuration);
+          updateTrimUI();
+        }
+      } catch (err) {
+        console.error('[FCon info]', err);
+        onFormatChange();
+      }
+    }
+
+    function resetResolutions() {
+      const resSelect = document.getElementById('resolutionSelect');
+      Array.from(resSelect.options).forEach(opt => {
+        opt.disabled = false;
+        opt.text = opt.text.replace(' (Unavailable)', '');
+      });
+    }
+
+    // ─── UI HELPERS ──────────────────────────────────────────────────────────────
+    function selectFormat(el, fmt) {
+      document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('formatSelect').value = fmt;
+      onFormatChange();
+    }
+
+    function scrollToConvert() {
+      closeMobileNav();
+      document.getElementById('convert').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) { item.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+    }
+
+    // Mobile nav was removed (converter-only page) — these are null-safe no-ops now.
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      if (!nav || !btn) return;
+      const open = nav.classList.toggle('open');
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open);
+    }
+
+    function closeMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      if (nav) nav.classList.remove('open');
+      if (btn) { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+    }
+
+    document.addEventListener('click', e => {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      if (nav && btn && nav.classList.contains('open') && !nav.contains(e.target) && !btn.contains(e.target))
+        closeMobileNav();
+    });
+
+    // ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const open = sb.classList.toggle('open');
+      document.getElementById('sideOverlay').classList.toggle('show', open);
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sideOverlay').classList.remove('show');
+    }
+
+    // ─── CONVERSION HISTORY (local) ──────────────────────────────────────────────
+    const RECENT_KEY = 'fcon-recent', TOTAL_KEY = 'fcon-total', MONTH_KEY = 'fcon-monthly';
+    function getRecent() { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; } }
+    function getTotal() { return parseInt(localStorage.getItem(TOTAL_KEY) || '0', 10) || 0; }
+    function ym() { return new Date().toISOString().slice(0, 7); } // "YYYY-MM"
+    function getMonthly() { try { return JSON.parse(localStorage.getItem(MONTH_KEY)) || {}; } catch { return {}; } }
+    function recordConversion(title, info, url, filename) {
+      const list = getRecent();
+      list.unshift({ title, info, url, filename, at: Date.now() });
+      localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 20)));
+      localStorage.setItem(TOTAL_KEY, String(getTotal() + 1));
+      const mo = getMonthly(); mo[ym()] = (mo[ym()] || 0) + 1;
+      localStorage.setItem(MONTH_KEY, JSON.stringify(mo));
+      renderSidebar();
+      // Refresh now, and again shortly after — the second catches any lag between
+      // the conversion finishing and the server writing its log line.
+      updateServerStats();
+      setTimeout(updateServerStats, 1200);
+      setTimeout(updateServerStats, 3000);
+    }
+    function clearRecent() {
+      localStorage.removeItem(RECENT_KEY);
+      renderSidebar();
+    }
+    function redownload(i) {
+      const it = getRecent()[i];
+      if (!it || !it.url) return;
+      if (window.FConApp) {
+        const r = FConApp.save(it.url.split('/').pop());
+        showToast(r.indexOf('ERR:') === 0 ? 'Error' : 'Saved!', r.replace(/^ERR:/, ''));
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = it.url; a.download = it.filename || 'download';
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    function timeAgo(ts) {
+      const s = Math.floor((Date.now() - ts) / 1000);
+      if (s < 60) return 'just now';
+      const m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+      const h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+      return Math.floor(h / 24) + 'd ago';
+    }
+    function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function renderSidebar() {
+      const list = getRecent(), el = document.getElementById('recentList');
+      document.getElementById('clearRecentBtn').style.display = list.length ? 'inline' : 'none';
+      if (!list.length) { el.innerHTML = '<div class="recent-empty">No conversions yet.</div>'; return; }
+      el.innerHTML = list.map((it, i) => `
+        <div class="recent-item">
+          <div class="recent-meta">
+            <div class="recent-title" title="${esc(it.title)}">${esc(it.title)}</div>
+            <div class="recent-sub">${esc(it.info || '')} · ${timeAgo(it.at)}</div>
+          </div>
+          <button class="recent-dl" onclick="redownload(${i})" title="Download again" aria-label="Download again">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </div>`).join('');
+    }
+    renderSidebar();
+
+    let _toastTimer;
+    function showToast(title, msg) {
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastMsg').textContent = msg;
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
+    }
+
+    // ─── LIVE SERVER STATS ───────────────────────────────────────────────────────
+    // Sidebar Total / This month reflect the real server-wide counts (all users,
+    // all time), read from the backend log. Falls back to the local counters if
+    // the server is unreachable.
+    async function updateServerStats() {
+      if (window.FConApp) return;
+      const set = (id, v) => {
+        const el = document.getElementById(id);
+        if (!el || v == null) return;
+        const next = (+v).toLocaleString();
+        if (el.textContent !== next) {           // briefly pulse when a number changes
+          el.textContent = next;
+          el.classList.remove('stat-bump'); void el.offsetWidth; el.classList.add('stat-bump');
+        }
+      };
+      try {
+        const res = await fetch(API_BASE + '/stats');
+        if (!res.ok) throw 0;
+        const d = await res.json();
+        set('stTotal', d.total != null ? d.total : d.total_conversions);
+        set('stMonth', d.this_month);
+        set('stOk',    d.success);
+        set('stFail',  d.failed);
+        set('stVideo', d.video);
+        set('stAudio', d.audio);
+        set('stIps',   d.unique_ips);
+      } catch (err) {
+        // server unreachable: dash the server-only stats, show local total/month
+        ['stOk', 'stFail', 'stVideo', 'stAudio', 'stIps'].forEach(id => {
+          const el = document.getElementById(id); if (el) el.textContent = '—';
+        });
+        set('stTotal', getTotal());
+        set('stMonth', getMonthly()[ym()] || 0);
+      }
+    }
+    updateServerStats();
+    setInterval(updateServerStats, 30000); // keep the panel live (also reflects other devices)
+
+    // ─── EVENTS ──────────────────────────────────────────────────────────────────
+    document.getElementById('urlInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') startConvert();
+    });
+
+    document.querySelectorAll('.feature-card, .format-card, .stat-block, .step-card').forEach(el => {
+      new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) el.style.animation = 'fadeUp 0.5s ease both';
+      }, { threshold: 0.1 }).observe(el);
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('[PWA] SW registered', reg.scope))
+          .catch(err => console.error('[PWA] SW failed', err));
+      });
+    }
+  </script>
+
+<script>
+    // ─── APP UPDATE (Android app only) ────────────────────────────────────────────
+    (function () {
+      if (!window.FConApp) { var s = document.getElementById('appUpdate'); if (s) s.remove(); return; }
+      var btn = document.getElementById('updBtn'), msg = document.getElementById('updMsg');
+      var mode = 'check';
+      document.getElementById('updVersion').textContent = FConApp.version();
+      // The app calls this with a JSON string describing the update state.
+      window.__fconUpdate = function (json) {
+        var r = JSON.parse(json);
+        btn.disabled = false; btn.classList.remove('go');
+        switch (r.status) {
+          case 'uptodate':
+            mode = 'check'; btn.textContent = 'Check for updates';
+            msg.textContent = 'You have the latest version (' + r.current + ').'; break;
+          case 'available':
+            mode = 'install'; btn.textContent = 'Install ' + r.latest; btn.classList.add('go');
+            msg.textContent = 'Version ' + r.latest + ' is available' + (r.size ? ' (' + r.size + ' MB)' : '') + '. You have ' + r.current + '.'; break;
+          case 'downloading':
+            btn.disabled = true; btn.textContent = 'Downloading…';
+            msg.textContent = 'Downloading ' + r.latest + ': ' + r.percent + '%'; break;
+          case 'installing':
+            mode = 'install'; btn.textContent = 'Install ' + r.latest; btn.classList.add('go');
+            msg.textContent = 'The installer should be open. If nothing appeared, tap the button again.'; break;
+          case 'needs_permission':
+            mode = 'install'; btn.textContent = 'Install ' + r.latest; btn.classList.add('go');
+            msg.textContent = 'Allow FCon to install apps in the settings screen that just opened, go back, and tap the button again.'; break;
+          default:
+            btn.textContent = mode === 'install' ? 'Try again' : 'Check for updates';
+            msg.textContent = r.message || 'Something went wrong.';
+        }
+      };
+      window.fconUpdateClick = function () {
+        btn.disabled = true;
+        if (mode === 'install') { msg.textContent = 'Starting…'; FConApp.installUpdate(); }
+        else { msg.textContent = 'Checking…'; FConApp.checkUpdate(); }
+      };
+    })();
+  </script>
+</body>
+
+</html>

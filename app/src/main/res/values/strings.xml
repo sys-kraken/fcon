@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FCon</string>
+    <string name="channel_convert">Conversions</string>
+    <string name="channel_convert_desc">Shown while FCon is downloading or converting</string>
+</resources>
