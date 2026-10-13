@@ -2,12 +2,16 @@ package app.fcon
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.provider.Settings
 import android.util.Log
 import android.webkit.ConsoleMessage
@@ -147,6 +151,30 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun version(): String = "FCon ${BuildConfig.VERSION_NAME} · ${Engine.version(applicationContext)}"
+
+        /** The text on the clipboard ("" if there is none). WebView itself is not allowed to read the clipboard. */
+        @JavascriptInterface
+        fun paste(): String {
+            val clip = (getSystemService(CLIPBOARD_SERVICE) as ClipboardManager).primaryClip
+            if (clip == null || clip.itemCount == 0) return ""
+            return clip.getItemAt(0).coerceToText(applicationContext)?.toString()?.trim().orEmpty()
+        }
+
+        /** Opens Downloads/FCon in the Files app (falls back to the Downloads list). */
+        @JavascriptInterface
+        fun openFolder() {
+            runOnUiThread {
+                val folder = DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", "primary:Download/FCon")
+                val view = Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(folder, DocumentsContract.Document.MIME_TYPE_DIR)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    startActivity(view)
+                } catch (e: ActivityNotFoundException) {
+                    startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+        }
 
         /** Asks GitHub for the latest release; the answer goes back to the page as JSON. */
         @JavascriptInterface

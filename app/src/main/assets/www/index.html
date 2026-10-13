@@ -99,6 +99,28 @@
     .upd-btn:disabled { opacity: .55; cursor: default; }
     .upd-msg { font-size: 12px; color: var(--muted); margin: 8px 2px 14px; line-height: 1.45; min-height: 1em; }
   </style>
+<style>
+    * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+    .blob { display: none !important; }
+    body {
+      background:
+        radial-gradient(circle at 50% 40%, rgba(232,176,75,0.11), transparent 55%),
+        radial-gradient(520px 520px at 100% 0%, rgba(232,176,75,0.07), transparent 70%),
+        radial-gradient(420px 420px at 0% 100%, rgba(126,184,247,0.05), transparent 70%),
+        radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1px) !important;
+      background-size: auto, auto, auto, 30px 30px !important;
+    }
+    @media (max-width: 768px) {
+      .sidebar { will-change: transform; transform: translate3d(-100%, 0, 0); box-shadow: none;
+        transition: transform .25s ease, visibility 0s linear .25s; visibility: hidden; }
+      .sidebar.open { transform: translate3d(0, 0, 0); visibility: visible; transition: transform .25s ease; }
+      .side-overlay { display: block !important; visibility: hidden; opacity: 0; transition: opacity .25s ease, visibility 0s linear .25s; }
+      .side-overlay.show { visibility: visible; opacity: 1; transition: opacity .25s ease; }
+    }
+    .toast-open { display: none; margin-top: 10px; padding: 9px 14px; background: var(--gold); color: #0a0a0b; border: 0; border-radius: 8px;
+      font: inherit; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+    .recent-item .recent-dl { flex-shrink: 0; margin-left: 6px; }
+  </style>
 </head>
 
 <body>
@@ -864,6 +886,7 @@
           showToast('Error', saved.slice(4));
         } else {
           showToast('Saved!', saved);
+          window.fconOfferOpenFolder && fconOfferOpenFolder();
           document.getElementById('downloadBtn').innerHTML = '⬇ &nbsp; SAVE AGAIN';
         }
         return;
@@ -982,18 +1005,23 @@
 
     async function pasteFromClipboard() {
       try {
-        const text = await navigator.clipboard.readText();
+        const text = window.FConApp ? FConApp.paste() : await navigator.clipboard.readText();
+        if (!text) throw new Error('empty');
         document.getElementById('urlInput').value = text;
         validateUrl(text);
         showToast('Pasted!', 'URL ready — click Convert.');
       } catch {
-        showToast('Paste manually', 'Press Ctrl+V / Cmd+V in the field.');
+        window.FConApp ? showToast('Nothing to paste', 'Copy a video link first, then tap Paste.') : showToast('Paste manually', 'Press Ctrl+V / Cmd+V in the field.');
       }
     }
 
     async function fetchVideoInfo(url) {
+      const myInfoReq = window.__infoReq = (window.__infoReq || 0) + 1;
       const resSelect = document.getElementById('resolutionSelect');
       document.getElementById('resultInfo').textContent = 'Checking video quality…';
+      videoDuration = 0;
+      document.getElementById('trimValues').textContent = 'Loading video length…';
+      document.getElementById('trimMaxLabel').textContent = '…';
       try {
         const res = await fetch(API_BASE + '/info', {
           method: 'POST',
@@ -1001,6 +1029,7 @@
           body: JSON.stringify({ url })
         });
         const data = await res.json();
+        if (myInfoReq !== window.__infoReq) return;
 
         if (data.max_resolution) {
           const maxRes = data.max_resolution;
@@ -1032,7 +1061,10 @@
           updateTrimUI();
         }
       } catch (err) {
+        if (myInfoReq !== window.__infoReq) return;
         console.error('[FCon info]', err);
+        document.getElementById('trimValues').textContent = 'Length unavailable';
+        document.getElementById('trimMaxLabel').textContent = '?';
         onFormatChange();
       }
     }
@@ -1133,6 +1165,7 @@
       if (window.FConApp) {
         const r = FConApp.save(it.url.split('/').pop());
         showToast(r.indexOf('ERR:') === 0 ? 'Error' : 'Saved!', r.replace(/^ERR:/, ''));
+        if (r.indexOf('ERR:') !== 0 && window.fconOfferOpenFolder) fconOfferOpenFolder();
         return;
       }
       const a = document.createElement('a');
@@ -1157,6 +1190,7 @@
             <div class="recent-title" title="${esc(it.title)}">${esc(it.title)}</div>
             <div class="recent-sub">${esc(it.info || '')} · ${timeAgo(it.at)}</div>
           </div>
+          ${window.FConApp ? `<button class="recent-dl" onclick="FConApp.openFolder()" title="Open folder" aria-label="Open folder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></button>` : ''}
           <button class="recent-dl" onclick="redownload(${i})" title="Download again" aria-label="Download again">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </button>
@@ -1166,6 +1200,7 @@
 
     let _toastTimer;
     function showToast(title, msg) {
+      const ob = document.getElementById('toastOpen'); if (ob) ob.style.display = 'none';
       document.getElementById('toastTitle').textContent = title;
       document.getElementById('toastMsg').textContent = msg;
       const t = document.getElementById('toast');
@@ -1236,6 +1271,19 @@
 
 <script>
     // ─── APP UPDATE (Android app only) ────────────────────────────────────────────
+    // Shows an "Open folder" button inside the toast for a few seconds (called after a file was saved).
+    window.fconOfferOpenFolder = function () {
+      var t = document.getElementById('toast');
+      if (!t || !window.FConApp) return;
+      var b = document.getElementById('toastOpen');
+      if (!b) {
+        b = document.createElement('button'); b.id = 'toastOpen'; b.className = 'toast-open'; b.textContent = 'Open folder';
+        b.onclick = function () { FConApp.openFolder(); };
+        t.appendChild(b);
+      }
+      b.style.display = 'inline-block';
+      clearTimeout(_toastTimer); _toastTimer = setTimeout(function () { t.classList.remove('show'); }, 9000);
+    };
     (function () {
       if (!window.FConApp) { var s = document.getElementById('appUpdate'); if (s) s.remove(); return; }
       var btn = document.getElementById('updBtn'), msg = document.getElementById('updMsg');

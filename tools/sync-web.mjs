@@ -154,6 +154,104 @@ patch(
 </body>`,
 );
 
+// 8. Smooth drawer: the page's blurred background blobs and backdrop-filter layers are re-blurred every frame while the
+//    drawer slides over them (the WebView logs "tile memory limits exceeded" and the panel flickers). Use cheap static
+//    gradients instead and give the drawer its own GPU layer.
+patch(
+  '</head>',
+  `<style>
+    * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+    .blob { display: none !important; }
+    body {
+      background:
+        radial-gradient(circle at 50% 40%, rgba(232,176,75,0.11), transparent 55%),
+        radial-gradient(520px 520px at 100% 0%, rgba(232,176,75,0.07), transparent 70%),
+        radial-gradient(420px 420px at 0% 100%, rgba(126,184,247,0.05), transparent 70%),
+        radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1px) !important;
+      background-size: auto, auto, auto, 30px 30px !important;
+    }
+    @media (max-width: 768px) {
+      .sidebar { will-change: transform; transform: translate3d(-100%, 0, 0); box-shadow: none;
+        transition: transform .25s ease, visibility 0s linear .25s; visibility: hidden; }
+      .sidebar.open { transform: translate3d(0, 0, 0); visibility: visible; transition: transform .25s ease; }
+      .side-overlay { display: block !important; visibility: hidden; opacity: 0; transition: opacity .25s ease, visibility 0s linear .25s; }
+      .side-overlay.show { visibility: visible; opacity: 1; transition: opacity .25s ease; }
+    }
+    .toast-open { display: none; margin-top: 10px; padding: 9px 14px; background: var(--gold); color: #0a0a0b; border: 0; border-radius: 8px;
+      font: inherit; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+    .recent-item .recent-dl { flex-shrink: 0; margin-left: 6px; }
+  </style>
+</head>`,
+);
+
+// 9. Paste button: WebView has no clipboard-read permission, so read the clipboard through the app.
+patch(
+  'const text = await navigator.clipboard.readText();',
+  `const text = window.FConApp ? FConApp.paste() : await navigator.clipboard.readText();
+        if (!text) throw new Error('empty');`,
+);
+patch(
+  "showToast('Paste manually', 'Press Ctrl+V / Cmd+V in the field.');",
+  "window.FConApp ? showToast('Nothing to paste', 'Copy a video link first, then tap Paste.') : showToast('Paste manually', 'Press Ctrl+V / Cmd+V in the field.');",
+);
+
+// 10. "Open folder" in the saved popup and in the Recent list.
+patch('function showToast(title, msg) {\n', "function showToast(title, msg) {\n      const ob = document.getElementById('toastOpen'); if (ob) ob.style.display = 'none';\n");
+patch(
+  "showToast('Saved!', saved);\n",
+  "showToast('Saved!', saved);\n          window.fconOfferOpenFolder && fconOfferOpenFolder();\n",
+);
+patch(
+  "showToast(r.indexOf('ERR:') === 0 ? 'Error' : 'Saved!', r.replace(/^ERR:/, ''));\n",
+  "showToast(r.indexOf('ERR:') === 0 ? 'Error' : 'Saved!', r.replace(/^ERR:/, ''));\n        if (r.indexOf('ERR:') !== 0 && window.fconOfferOpenFolder) fconOfferOpenFolder();\n",
+);
+patch(
+  '<button class="recent-dl" onclick="redownload(${i})"',
+  `\${window.FConApp ? \`<button class="recent-dl" onclick="FConApp.openFolder()" title="Open folder" aria-label="Open folder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></button>\` : ''}
+          <button class="recent-dl" onclick="redownload(\${i})"`,
+);
+patch(
+  '(function () {\n      if (!window.FConApp) { var s = document.getElementById(\'appUpdate\'); if (s) s.remove(); return; }',
+  `// Shows an "Open folder" button inside the toast for a few seconds (called after a file was saved).
+    window.fconOfferOpenFolder = function () {
+      var t = document.getElementById('toast');
+      if (!t || !window.FConApp) return;
+      var b = document.getElementById('toastOpen');
+      if (!b) {
+        b = document.createElement('button'); b.id = 'toastOpen'; b.className = 'toast-open'; b.textContent = 'Open folder';
+        b.onclick = function () { FConApp.openFolder(); };
+        t.appendChild(b);
+      }
+      b.style.display = 'inline-block';
+      clearTimeout(_toastTimer); _toastTimer = setTimeout(function () { t.classList.remove('show'); }, 9000);
+    };
+    (function () {
+      if (!window.FConApp) { var s = document.getElementById('appUpdate'); if (s) s.remove(); return; }`,
+);
+
+// 11. Trim: never show a stale length from the previous video while the new one is being looked up.
+patch(
+  "document.getElementById('resultInfo').textContent = 'Checking video quality…';\n",
+  `document.getElementById('resultInfo').textContent = 'Checking video quality…';
+      videoDuration = 0;
+      document.getElementById('trimValues').textContent = 'Loading video length…';
+      document.getElementById('trimMaxLabel').textContent = '…';
+`,
+);
+patch(
+  "console.error('[FCon info]', err);\n",
+  "if (myInfoReq !== window.__infoReq) return;\n        console.error('[FCon info]', err);\n        document.getElementById('trimValues').textContent = 'Length unavailable';\n        document.getElementById('trimMaxLabel').textContent = '?';\n",
+);
+// Replies can arrive out of order (a slow first lookup must not overwrite the answer for the URL that is in the box now).
+patch(
+  'async function fetchVideoInfo(url) {\n',
+  'async function fetchVideoInfo(url) {\n      const myInfoReq = window.__infoReq = (window.__infoReq || 0) + 1;\n',
+);
+patch(
+  'const data = await res.json();\n\n        if (data.max_resolution) {',
+  'const data = await res.json();\n        if (myInfoReq !== window.__infoReq) return;\n\n        if (data.max_resolution) {',
+);
+
 fs.writeFileSync(indexPath, html);
 fs.copyFileSync('tools/app-config.js', path.join(out, 'config.js'));
 console.log('synced ->', out, fs.readdirSync(out).join(', '));
