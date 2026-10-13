@@ -35,3 +35,9 @@ if it is lost, friends can no longer update the app and must uninstall it first.
 ## Installing for friends
 Send the arm64 APK. They allow "install unknown apps" for the app they opened it from, tap the file and install.
 Play Protect may show an "unknown developer" warning; that is expected for sideloaded apps.
+
+## Updating
+In the app's menu, **Check for updates** reads the newest GitHub release of this repo and installs it over the old one
+(same signing key, higher version code). Publish a release with `gradlew assembleRelease`, then
+`gh release create vX.Y.Z dist/app-*-X.Y.Z.apk`. The APK name must contain the CPU type (`arm64-v8a` / `armeabi-v7a`);
+the app picks the matching one. Build another version with `-PappVersion=X.Y.Z`.

@@ -101,7 +101,7 @@ patch(
     .upd-btn { width: 100%; padding: 11px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; color: var(--text);
       font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
     .upd-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
-    .upd-btn.go { background: var(--gold); border-color: var(--gold); color: #0a0a0b; font-weight: 600; }
+    .upd-btn.go, .upd-btn.go:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); color: #0a0a0b; font-weight: 600; }
     .upd-btn:disabled { opacity: .55; cursor: default; }
     .upd-msg { font-size: 12px; color: var(--muted); margin: 8px 2px 14px; line-height: 1.45; min-height: 1em; }
   </style>
@@ -115,9 +115,12 @@ patch(
       if (!window.FConApp) { var s = document.getElementById('appUpdate'); if (s) s.remove(); return; }
       var btn = document.getElementById('updBtn'), msg = document.getElementById('updMsg');
       var mode = 'check';
-      document.getElementById('updVersion').textContent = FConApp.version();
+      // The downloader needs a few seconds to start, so refresh the version line a couple of times.
+      var showVersion = function () { document.getElementById('updVersion').textContent = FConApp.version(); };
+      showVersion(); setTimeout(showVersion, 6000); setTimeout(showVersion, 20000);
       // The app calls this with a JSON string describing the update state.
       window.__fconUpdate = function (json) {
+        showVersion();
         var r = JSON.parse(json);
         btn.disabled = false; btn.classList.remove('go');
         switch (r.status) {
