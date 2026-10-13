@@ -5,6 +5,8 @@ import android.content.Context
 import android.util.Log
 import com.yausername.ffmpeg.FFmpeg
 import com.yausername.youtubedl_android.YoutubeDL
+import com.yausername.youtubedl_android.YoutubeDLRequest
+import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -31,8 +33,36 @@ object Engine {
             } finally {
                 ready.countDown()
             }
-            if (initError == null) updateIfStale(app)
+            if (initError == null) scheduleUpdate(app)
         }, "fcon-engine-init").start()
+    }
+
+    /**
+     * The yt-dlp update holds the write lock, so doing it right at launch made the first lookup after opening the app
+     * wait for it. Wait a little and only update while nothing is running; try again if the app is busy.
+     */
+    private fun scheduleUpdate(app: Application) {
+        Thread({
+            try {
+                Thread.sleep(25_000)
+                repeat(40) {
+                    if (JobManager.isIdle() && !InfoCache.busy) {
+                        updateIfStale(app)
+                        return@Thread
+                    }
+                    Thread.sleep(15_000)
+                }
+            } catch (_: InterruptedException) {
+            }
+        }, "fcon-ytdlp-update").start()
+    }
+
+    /** Options every yt-dlp run gets: a persistent cache, so YouTube's player script is not solved from scratch each time. */
+    fun applyCommon(ctx: Context, req: YoutubeDLRequest) {
+        if (!Debug.flag(ctx, "nocachedir")) {
+            req.addOption("--cache-dir", File(ctx.noBackupFilesDir, "ytdlp-cache").apply { mkdirs() }.absolutePath)
+        }
+        Debug.extraArgs(ctx).takeIf { it.isNotEmpty() }?.let { req.addCommands(it) }
     }
 
     /** Blocks until the engine is initialised; throws if it could not start. */

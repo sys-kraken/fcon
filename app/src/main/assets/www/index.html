@@ -121,6 +121,11 @@
       font: inherit; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
     .recent-item .recent-dl { flex-shrink: 0; margin-left: 6px; }
   </style>
+<style>
+    .toast { position: static !important; transform: none !important; transition: none !important; width: auto !important;
+      max-width: none !important; margin: 16px 0 0 !important; display: none; right: auto !important; bottom: auto !important; }
+    .toast.show { display: block; animation: fadeUp 0.3s ease both; }
+  </style>
 </head>
 
 <body>
@@ -591,16 +596,17 @@
             ⬇ &nbsp; DOWNLOAD FILE
           </button>
         </div>
+
+        <!-- Status card: messages appear here, below the button -->
+        <div class="toast" id="toast" role="alert" aria-live="assertive">
+          <div class="toast-title" id="toastTitle">Notification</div>
+          <div class="toast-msg" id="toastMsg">Message here</div>
+        </div>
       </div>
     </section>
 
   </main>
 
-  <!-- TOAST -->
-  <div class="toast" id="toast" role="alert" aria-live="assertive">
-    <div class="toast-title" id="toastTitle">Notification</div>
-    <div class="toast-msg" id="toastMsg">Message here</div>
-  </div>
 
   <script src="/config.js"></script>
   <script>
@@ -1205,6 +1211,7 @@
       document.getElementById('toastMsg').textContent = msg;
       const t = document.getElementById('toast');
       t.classList.add('show');
+      if (window.FConApp) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       clearTimeout(_toastTimer);
       _toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
     }

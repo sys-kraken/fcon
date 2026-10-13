@@ -37,3 +37,14 @@ In the app's menu, **Check for updates** reads the newest GitHub release of this
 (same signing key, higher version code). Publish a release with `gradlew assembleRelease`, then
 `gh release create vX.Y.Z dist/app-*-X.Y.Z.apk`. The APK name must contain the CPU type (`arm64-v8a` / `armeabi-v7a`);
 the app picks the matching one. Build another version with `-PappVersion=X.Y.Z`.
+
+## Speed notes
+- One yt-dlp lookup per video: the length/resolution check made when a link is pasted is saved (`InfoCache`) and the
+  conversion loads it with `--load-info-json` instead of asking the site again. If that fails it looks the video up again.
+- The quick lookup uses `--extractor-args youtube:player_skip=js` (~4 s instead of ~16 s: the phone solves YouTube's
+  player script slowly). 1440p/4K conversions use the full lookup.
+- MP3 uses LAME `-compression_level 7` (~40% faster encoding, same bitrate and size).
+- Timing log: `adb logcat -s FconTiming` (also `files/timing.jsonl`): startup / extract / download / encode per conversion.
+  Debug builds only: empty files in the app's files dir switch things off for A/B tests (`nocache`, `nocachedir`, `nofast`)
+  and `extra_args` (one yt-dlp argument per line) adds arguments.
+- Measured and rejected: aria2c (slower on a 7 MB/s link), yt-dlp's cache dir (no gain).

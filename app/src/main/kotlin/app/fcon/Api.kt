@@ -23,7 +23,7 @@ object Api {
                     JSONObject().put("total", 0).put("audio", 0).put("video", 0).put("success", 0)
                         .put("failed", 0).put("this_month", 0).put("unique_ips", 0).put("total_conversions", 0),
                 )
-                path == "/api/info" -> info(body(request))
+                path == "/api/info" -> info(ctx, body(request))
                 path == "/api/convert" -> json(200, JobManager.start(ctx, body(request)))
                 path.startsWith("/api/progress/") -> progress(path.substringAfterLast('/'))
                 path.startsWith("/api/result/") -> result(path.substringAfterLast('/'))
@@ -40,24 +40,17 @@ object Api {
         JSONObject(request.url.getQueryParameter("body") ?: "{}")
 
     /** Video resolution and duration, so the page can limit its resolution list and trim sliders. */
-    private fun info(body: JSONObject): WebResourceResponse {
+    private fun info(ctx: Context, body: JSONObject): WebResourceResponse {
         val url = body.optString("url").trim()
         require(url.isNotEmpty()) { "No URL provided" }
-        Engine.await()
-        Engine.lock.readLock().lock()
-        try {
-            val req = YoutubeDLRequest(url).apply { addOption("--no-playlist") }
-            val info = YoutubeDL.getInstance().getInfo(req)
-            val heights = info.formats.orEmpty()
-                .filter { it.vcodec != null && it.vcodec != "none" && it.height > 0 }
-                .map { it.height }
-            return json(
-                200,
-                JSONObject().put("max_resolution", heights.maxOrNull() ?: 1080).put("duration", info.duration),
-            )
-        } finally {
-            Engine.lock.readLock().unlock()
-        }
+        // The lookup is saved so that Convert does not have to ask the site again (see InfoCache).
+        // The quick lookup already lists every resolution (even 4K), so it is all the page needs.
+        val entry = InfoCache.fetch(ctx, url)
+        return json(
+            200,
+            JSONObject().put("max_resolution", if (entry.maxHeight > 0) entry.maxHeight else 1080)
+                .put("duration", entry.duration),
+        )
     }
 
     /** Mirrors the server's event stream values: "12.5" while downloading, "100" when done, "ERROR" on failure. */

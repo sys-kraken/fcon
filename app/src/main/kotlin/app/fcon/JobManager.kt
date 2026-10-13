@@ -38,6 +38,9 @@ object JobManager {
     private val active = AtomicInteger(0)
 
     fun job(id: String): Job? = jobs[id]
+
+    /** True when no conversion is queued or running. */
+    fun isIdle(): Boolean = active.get() == 0
     fun fileFor(fileId: String): StoredFile? = files[fileId]?.takeIf { it.file.isFile }
 
     fun start(ctx: Context, body: JSONObject): JSONObject {
@@ -67,34 +70,69 @@ object JobManager {
             val start = if (trim) body.optString("start_time") else ""
             val end = if (trim) body.optString("end_time") else ""
 
+            // One lookup per video: reuse the one made when the link was pasted (or wait for it if it is still running).
+            // Audio and video up to 1080p use the quick lookup; 1440p/4K need the full one (see InfoCache).
+            val needFull = isVideo && resolution.toInt() > 1080
+            var info: InfoCache.Entry? = if (Debug.flag(ctx, "nocache")) null else try {
+                InfoCache.fetch(ctx, url, needFull)
+            } catch (e: Exception) {
+                null // the normal run below will hit the same problem and report the real error
+            }
+            var clock = PhaseClock()
+
             fun attempt() {
                 Engine.lock.readLock().lock()
                 try {
                     dir.listFiles()?.forEach { it.deleteRecursively() }
                     job.progress = 0f
-                    val req = buildRequest(url, dir, ext, isVideo, quality, resolution, start, end)
-                    YoutubeDL.getInstance().execute(req, job.id) { p, _, _ ->
+                    val req = buildRequest(ctx, url, info, dir, ext, isVideo, quality, resolution, start, end)
+                    clock = PhaseClock()
+                    YoutubeDL.getInstance().execute(req, job.id) { p, _, line ->
+                        clock.onLine(line)
                         if (p >= 0) {
                             job.progress = p
                             ConversionService.progress(ctx, p.toInt())
                         }
                     }
+                    clock.finish()
                 } finally {
                     Engine.lock.readLock().unlock()
                 }
             }
 
+            // YouTube changes often: if yt-dlp looks outdated, update it and retry once (at most hourly).
+            fun retryAfterUpdate(e: Exception) {
+                if (needsNewerYtdlp(e.message.orEmpty()) && Engine.updateIfStale(ctx, 1) != null) attempt() else throw e
+            }
             try {
                 attempt()
             } catch (e: Exception) {
-                // YouTube changes often: if yt-dlp looks outdated, update it and retry once (at most hourly).
-                if (needsNewerYtdlp(e.message.orEmpty()) && Engine.updateIfStale(ctx, 1) != null) attempt() else throw e
+                if (info != null) {
+                    // The saved lookup may have gone stale (its download links expire): ask the site again.
+                    InfoCache.drop(url)
+                    info = null
+                    try {
+                        attempt()
+                    } catch (e2: Exception) {
+                        retryAfterUpdate(e2)
+                    }
+                } else {
+                    retryAfterUpdate(e)
+                }
             }
 
             val out = dir.listFiles()
                 ?.filter { it.isFile && it.extension.lowercase() in MEDIA_EXTS && !INTERMEDIATE.containsMatchIn(it.nameWithoutExtension) }
                 ?.maxByOrNull { it.length() }
                 ?: throw IllegalStateException("Output file not created")
+
+            Timing.log(
+                ctx,
+                clock.toJson().put("type", "convert").put("format", format)
+                    .put("quality", if (isVideo) resolution + "p" else quality + "k")
+                    .put("trim", trim).put("mb", Math.round(out.length() / 104857.6) / 10.0).put("url", url)
+                    .put("reused_lookup", info != null).put("full_lookup", needFull),
+            )
 
             files[fileId] = StoredFile(out, out.name)
             job.result = JSONObject()
@@ -117,10 +155,14 @@ object JobManager {
     }
 
     private fun buildRequest(
-        url: String, dir: File, ext: String, isVideo: Boolean, quality: String,
-        resolution: String, start: String, end: String,
+        ctx: Context, url: String, info: InfoCache.Entry?, dir: File, ext: String, isVideo: Boolean,
+        quality: String, resolution: String, start: String, end: String,
     ): YoutubeDLRequest {
-        val req = YoutubeDLRequest(url)
+        // With a saved lookup there is no URL to give yt-dlp: it loads the lookup file instead.
+        val req = if (info != null) YoutubeDLRequest(emptyList<String>()).apply { addOption("--load-info-json", info.file.absolutePath) }
+        else YoutubeDLRequest(url)
+        Engine.applyCommon(ctx, req)
+        req.addOption("--concurrent-fragments", 4)
         req.addOption("--no-playlist")
         req.addOption("--no-mtime")
         req.addOption("--embed-metadata")
@@ -137,6 +179,9 @@ object JobManager {
             req.addOption("-x")
             req.addOption("--audio-format", ext)
             req.addOption("--audio-quality", quality)
+            // LAME's speed/quality dial (0 best ... 9 fastest, default ~5): 7 encodes ~40% faster at the same bitrate
+            // and size; the difference is hard to hear at 192-320 kbps.
+            if (ext == "mp3") req.addOption("--postprocessor-args", "ExtractAudio:-compression_level 7")
         }
         if (start.isNotEmpty() && end.isNotEmpty()) req.addOption("--download-sections", "*$start-$end")
         return req

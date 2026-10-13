@@ -48,7 +48,7 @@ while (Date.now() - t0 < 240000) {
   if (state.startsWith('RESULT') || /Failed/i.test(state)) break;
 }
 console.log(((Date.now() - t0) / 1000).toFixed(0) + 's ->', state);
-if (state.startsWith('RESULT')) {
+if (state.startsWith('RESULT') && !process.env.NODL) {
   console.log('click download:', await evaluate(`(() => { document.getElementById('downloadBtn').click(); return document.getElementById('toastMsg').textContent; })()`));
   await sleep(1500);
   console.log('toast after save:', await evaluate(`document.getElementById('toastTitle').textContent + ' ' + document.getElementById('toastMsg').textContent`));

@@ -252,6 +252,34 @@ patch(
   'const data = await res.json();\n        if (myInfoReq !== window.__infoReq) return;\n\n        if (data.max_resolution) {',
 );
 
+// 12. The notification is a card under the Download button (inside the converter card), not a popup that covers it.
+{
+  const a = html.indexOf('  <!-- TOAST -->');
+  const end = '  </div>\n';
+  const b = html.indexOf(end, html.indexOf('id="toastMsg"', a)) + end.length;
+  if (a < 0 || b < end.length) throw new Error('patch target missing: toast block');
+  const toastHtml = html.slice(a, b).replace('  <!-- TOAST -->\n', '');
+  html = html.slice(0, a) + html.slice(b);
+  patch(
+    '            ⬇ &nbsp; DOWNLOAD FILE\n          </button>\n        </div>\n',
+    '            ⬇ &nbsp; DOWNLOAD FILE\n          </button>\n        </div>\n\n        <!-- Status card: messages appear here, below the button -->\n' +
+      toastHtml.replace(/^  /gm, '        '),
+  );
+}
+patch(
+  '</head>',
+  `<style>
+    .toast { position: static !important; transform: none !important; transition: none !important; width: auto !important;
+      max-width: none !important; margin: 16px 0 0 !important; display: none; right: auto !important; bottom: auto !important; }
+    .toast.show { display: block; animation: fadeUp 0.3s ease both; }
+  </style>
+</head>`,
+);
+patch(
+  "t.classList.add('show');\n      clearTimeout(_toastTimer);",
+  "t.classList.add('show');\n      if (window.FConApp) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });\n      clearTimeout(_toastTimer);",
+);
+
 fs.writeFileSync(indexPath, html);
 fs.copyFileSync('tools/app-config.js', path.join(out, 'config.js'));
 console.log('synced ->', out, fs.readdirSync(out).join(', '));
