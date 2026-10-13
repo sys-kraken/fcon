@@ -32,10 +32,6 @@ Two APKs are produced: `arm64-v8a` (almost every phone made since 2016) and `arm
 `keystore.properties` (git-ignored) points at the release key. **Back the key up** (`../fcon-android-keys`):
 if it is lost, friends can no longer update the app and must uninstall it first.
 
-## Installing for friends
-Send the arm64 APK. They allow "install unknown apps" for the app they opened it from, tap the file and install.
-Play Protect may show an "unknown developer" warning; that is expected for sideloaded apps.
-
 ## Updating
 In the app's menu, **Check for updates** reads the newest GitHub release of this repo and installs it over the old one
 (same signing key, higher version code). Publish a release with `gradlew assembleRelease`, then
