@@ -24,6 +24,12 @@ object Api {
                         .put("failed", 0).put("this_month", 0).put("unique_ips", 0).put("total_conversions", 0),
                 )
                 path == "/api/info" -> info(ctx, body(request))
+                path == "/api/report" -> {
+                    val b = body(request)
+                    Firebase.sendReport(ctx, b.optString("category"), b.optString("details"))
+                    json(200, JSONObject().put("ok", true))
+                }
+                path == "/api/announcement" -> json(200, Firebase.announcement())
                 path == "/api/convert" -> json(200, JobManager.start(ctx, body(request)))
                 path.startsWith("/api/progress/") -> progress(path.substringAfterLast('/'))
                 path.startsWith("/api/result/") -> result(path.substringAfterLast('/'))

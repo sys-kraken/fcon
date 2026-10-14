@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// FCon: who may read and write what.
+//  - Anyone using the app (signed in anonymously) can send a report and add to the download counter.
+//  - Only the admin's verified Google account can read reports, change statuses or publish announcements.
+//  - Everybody can read the announcement and the download total.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'ADMIN_EMAIL_HERE'
+        && request.auth.token.email_verified == true;
+    }
+
+    match /reports/{id} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['category', 'details', 'name', 'uid', 'status', 'createdAt', 'appVersion', 'device'])
+        && request.resource.data.keys().hasAll(['category', 'details', 'name', 'uid', 'status', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.category in [
+          'Conversion failed', 'Facebook conversion failed', 'Instagram conversion failed',
+          'Audio or video quality issue', 'Other issue']
+        && request.resource.data.details is string && request.resource.data.details.size() <= 1000
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && request.resource.data.createdAt is timestamp;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // One document with the running totals. The app may only add 1..20 downloads at a time.
+    match /stats/global {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['downloads', 'audio', 'video'])
+        && request.resource.data.downloads >= 1 && request.resource.data.downloads <= 20;
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloads', 'audio', 'video'])
+        && request.resource.data.downloads - resource.data.downloads >= 1
+        && request.resource.data.downloads - resource.data.downloads <= 20;
+      allow write: if isAdmin();
+    }
+  }
+}

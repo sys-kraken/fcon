@@ -280,6 +280,130 @@ patch(
   "t.classList.add('show');\n      if (window.FConApp) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });\n      clearTimeout(_toastTimer);",
 );
 
+// 13. "Report an issue" panel above Recent (answered by Firebase.kt through /api/report).
+patch(
+  '    <div class="side-section side-recent">',
+  `    <div class="side-section" id="reportBox">
+      <div class="side-label">Report an issue</div>
+      <div class="rep-chips" id="repChips">
+        <button type="button" class="rep-chip" data-c="Conversion failed">Conversion failed</button>
+        <button type="button" class="rep-chip" data-c="Facebook conversion failed">Facebook conversion failed</button>
+        <button type="button" class="rep-chip" data-c="Instagram conversion failed">Instagram conversion failed</button>
+        <button type="button" class="rep-chip" data-c="Audio or video quality issue">Audio or video quality issue</button>
+        <button type="button" class="rep-chip" data-c="Other issue">Other issue</button>
+      </div>
+      <textarea class="rep-text" id="repText" maxlength="1000" rows="3" placeholder="Tell us more (optional): which link, which format…"></textarea>
+      <button class="upd-btn" id="repSend" type="button" disabled>Send</button>
+      <div class="upd-msg" id="repMsg"></div>
+    </div>
+    <div class="side-section side-recent">`,
+);
+
+// 14. Announcement card at the top of the converter card (shown only while the admin has an announcement active).
+patch(
+  '      <div class="converter-card">\n',
+  `      <div class="converter-card">
+        <div class="ann-card" id="annCard" hidden>
+          <button type="button" class="ann-x" id="annX" aria-label="Dismiss">&times;</button>
+          <div class="ann-title" id="annTitle">What's new</div>
+          <div class="ann-msg" id="annMsg"></div>
+          <button type="button" class="upd-btn go ann-btn" id="annBtn" hidden>Update</button>
+          <div class="ann-status" id="annStatus"></div>
+        </div>
+`,
+);
+patch(
+  '</head>',
+  `<style>
+    .rep-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .rep-chip { padding: 7px 11px; background: var(--bg3); border: 1px solid var(--border); border-radius: 999px; color: var(--muted);
+      font-family: inherit; font-size: 12px; line-height: 1.2; cursor: pointer; text-align: left; }
+    .rep-chip.on { border-color: var(--gold); color: var(--gold); background: rgba(232,176,75,0.1); }
+    .rep-text { width: 100%; box-sizing: border-box; margin-bottom: 8px; padding: 10px 12px; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-family: inherit; font-size: 13px; resize: vertical; min-height: 64px; }
+    .rep-text:focus { outline: none; border-color: var(--gold); }
+    #reportBox .upd-msg { margin-bottom: 8px; }
+    .ann-card { position: relative; margin: 0 0 16px; padding: 14px 40px 14px 16px; border: 1px solid rgba(232,176,75,0.45);
+      border-radius: 12px; background: rgba(232,176,75,0.08); }
+    .ann-card[hidden] { display: none; }
+    .ann-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    .ann-msg { font-size: 14px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+    .ann-btn { width: auto; margin-top: 12px; padding: 10px 22px; }
+    .ann-btn[hidden] { display: none; }
+    .ann-status { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 0; }
+    .ann-status:empty { display: none; }
+    .ann-x { position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; border: 0; background: transparent; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+  </style>
+</head>`,
+);
+patch(
+  '</body>',
+  `<script>
+    // ─── REPORT AN ISSUE + ANNOUNCEMENT (Android app only) ───────────────────────
+    (function () {
+      if (!window.FConApp) { var rb = document.getElementById('reportBox'); if (rb) rb.remove(); var ac = document.getElementById('annCard'); if (ac) ac.remove(); return; }
+      var chosen = '', send = document.getElementById('repSend'), msg = document.getElementById('repMsg'), text = document.getElementById('repText');
+      document.getElementById('repChips').addEventListener('click', function (e) {
+        var b = e.target.closest('.rep-chip'); if (!b) return;
+        chosen = b.dataset.c;
+        document.querySelectorAll('.rep-chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+        send.disabled = false; msg.textContent = '';
+      });
+      send.addEventListener('click', function () {
+        if (!chosen) return;
+        send.disabled = true; msg.textContent = 'Sending…';
+        fetch('/api/report?body=' + encodeURIComponent(JSON.stringify({ category: chosen, details: text.value })))
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (r) {
+            if (!r.ok) throw new Error(r.j.error || 'Could not send');
+            msg.textContent = 'Thanks! Your report was sent.';
+            text.value = ''; chosen = '';
+            document.querySelectorAll('.rep-chip').forEach(function (x) { x.classList.remove('on'); });
+          })
+          .catch(function (e) { msg.textContent = e.message || 'Could not send. Check your connection.'; send.disabled = false; });
+      });
+
+      var card = document.getElementById('annCard'), btn = document.getElementById('annBtn'), st = document.getElementById('annStatus');
+      var DISMISS = 'fcon-ann-dismissed', current = null, auto = false;
+      function dismissed(id) { try { return localStorage.getItem(DISMISS) === id; } catch (e) { return false; } }
+      document.getElementById('annX').addEventListener('click', function () {
+        card.hidden = true;
+        try { if (current) localStorage.setItem(DISMISS, current); } catch (e) {}
+      });
+      function poll() {
+        fetch('/api/announcement').then(function (r) { return r.json(); }).then(function (a) {
+          if (!a.active || !a.message || dismissed(a.id)) { card.hidden = true; current = null; return; }
+          if (current !== a.id) st.textContent = '';
+          current = a.id;
+          document.getElementById('annTitle').textContent = a.title || "What's new";
+          document.getElementById('annMsg').textContent = a.message;
+          btn.hidden = !a.showUpdate;
+          card.hidden = false;
+        }).catch(function () {});
+      }
+      poll(); setInterval(poll, 5 * 60 * 1000);
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+
+      // The Update button reuses the app's update flow: check GitHub, then start the install straight away.
+      var prev = window.__fconUpdate;
+      window.__fconUpdate = function (json) {
+        if (prev) prev(json);
+        if (!auto) return;
+        var r = JSON.parse(json);
+        if (r.status === 'available') { st.textContent = 'Downloading ' + r.latest + '…'; FConApp.installUpdate(); return; }
+        if (r.status === 'downloading') { st.textContent = 'Downloading ' + r.latest + ': ' + r.percent + '%'; return; }
+        if (r.status === 'installing') { st.textContent = 'The installer should be open. Tap Install.'; btn.disabled = false; auto = false; return; }
+        if (r.status === 'needs_permission') { st.textContent = 'Allow FCon to install apps in the settings screen that opened, go back, then tap Update again.'; btn.disabled = false; auto = false; return; }
+        if (r.status === 'uptodate') st.textContent = 'You already have the latest version.';
+        else st.textContent = r.message || 'Something went wrong. Please try again.';
+        btn.disabled = false; auto = false;
+      };
+      btn.addEventListener('click', function () { auto = true; btn.disabled = true; st.textContent = 'Checking…'; FConApp.checkUpdate(); });
+    })();
+  </script>
+</body>`,
+);
+
 fs.writeFileSync(indexPath, html);
 fs.copyFileSync('tools/app-config.js', path.join(out, 'config.js'));
 console.log('synced ->', out, fs.readdirSync(out).join(', '));

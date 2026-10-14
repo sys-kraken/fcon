@@ -143,7 +143,10 @@ class MainActivity : AppCompatActivity() {
             val stored = JobManager.fileFor(fileId)
                 ?: return "ERR:That file is no longer available. Convert it again."
             return try {
-                Saver.save(applicationContext, stored.file, stored.name)
+                Saver.save(applicationContext, stored.file, stored.name).also {
+                    // Only a file that was really saved counts as a download.
+                    Firebase.countDownload(applicationContext, stored.file.extension.lowercase() in setOf("mp4", "webm", "mkv"))
+                }
             } catch (e: Exception) {
                 "ERR:" + (e.message ?: "Could not save the file")
             }

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>FCon Admin</title>
+<style>
+  :root {
+    --bg: #0a0a0b; --bg3: #18181d; --card: #16161d; --border: #2a2a35;
+    --gold: #e8b04b; --gold2: #f0be62; --text: #e8e8f0; --muted: #9494a8;
+    --green: #4be8a0; --blue: #7eb8f7; --red: #e85b4b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; }
+  h1 span { color: var(--gold); }
+  h2 { margin: 0 0 12px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+  button, select, textarea { font: inherit; color: var(--text); }
+  button { cursor: pointer; border-radius: 10px; border: 1px solid var(--border); background: var(--bg3); padding: 9px 16px; }
+  button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.primary { background: var(--gold); border-color: var(--gold); color: #0a0a0b; font-weight: 600; }
+  button.primary:hover:not(:disabled) { background: var(--gold2); color: #0a0a0b; }
+  textarea { width: 100%; min-height: 90px; padding: 11px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; resize: vertical; }
+  textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+  select { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .tile { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .tile .n { font-size: 30px; font-weight: 700; color: var(--gold); }
+  .tile .l { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .muted { color: var(--muted); font-size: 13px; }
+  label.check { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tabs button.on { border-color: var(--gold); color: var(--gold); }
+  .report { border-top: 1px solid var(--border); padding: 14px 0; }
+  .report:first-child { border-top: 0; }
+  .report .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .cat { font-weight: 600; }
+  .who { color: var(--blue); font-size: 13px; }
+  .desc { margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
+  .badge { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); }
+  .Pending { color: var(--red); border-color: var(--red); }
+  .InProgress { color: var(--gold); border-color: var(--gold); }
+  .Resolved { color: var(--green); border-color: var(--green); }
+  .err { color: var(--red); }
+  .ok { color: var(--green); }
+  #gate { text-align: center; padding: 60px 10px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>FCon <span>Admin</span></h1>
+    <div class="row"><span class="muted" id="who"></span><button id="signOut" hidden>Sign out</button></div>
+  </header>
+
+  <div id="gate" class="card">
+    <p>Sign in with the admin Google account.</p>
+    <button class="primary" id="signIn">Sign in with Google</button>
+    <p class="err" id="gateErr"></p>
+  </div>
+
+  <div id="app" hidden>
+    <div class="tiles">
+      <div class="tile"><div class="n" id="tDownloads">–</div><div class="l">Total downloads</div></div>
+      <div class="tile"><div class="n" id="tAudio">–</div><div class="l">Audio</div></div>
+      <div class="tile"><div class="n" id="tVideo">–</div><div class="l">Video</div></div>
+      <div class="tile"><div class="n" id="tPending">–</div><div class="l">Pending</div></div>
+      <div class="tile"><div class="n" id="tProgress">–</div><div class="l">In progress</div></div>
+      <div class="tile"><div class="n" id="tResolved">–</div><div class="l">Resolved</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Announcement to all users</h2>
+      <p class="muted" style="margin-top:0">Shown as a card at the top of the converter in the app, until you clear it or a user dismisses it.</p>
+      <textarea id="annMessage" maxlength="500" placeholder="All reported issues are fixed. What's new: …"></textarea>
+      <div class="row" style="margin-top:10px">
+        <label class="check"><input type="checkbox" id="annUpdate" checked> Show Update button</label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="primary" id="annSend">Send Notification to All Users</button>
+        <button id="annClear">Clear announcement</button>
+        <span id="annState" class="muted"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Issue reports</h2>
+      <div class="tabs" id="tabs"></div>
+      <div id="reports"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyCYgp2ly_OtJ71dSrd803Z2BkWqZXEwBZw",
+    authDomain: "file-conversion-online-network.firebaseapp.com",
+    projectId: "file-conversion-online-network",
+    appId: "1:201687894117:web:eba537bec7f7afb45d1e8c"
+  });
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const $ = (id) => document.getElementById(id);
+  const STATUSES = ["Pending", "In Progress", "Resolved"];
+  let filter = "All", reports = [], unsubs = [];
+
+  $("signIn").onclick = async () => {
+    $("gateErr").textContent = "";
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+    catch (e) { $("gateErr").textContent = e.message; }
+  };
+  $("signOut").onclick = () => signOut(auth);
+
+  onAuthStateChanged(auth, (user) => {
+    unsubs.forEach((u) => u()); unsubs = [];
+    $("app").hidden = !user; $("gate").hidden = !!user; $("signOut").hidden = !user;
+    $("who").textContent = user ? user.email : "";
+    if (user) start();
+  });
+
+  const fmt = (n) => (n ?? 0).toLocaleString();
+  function start() {
+    // Total downloads: the counter the app adds to after each file it really saved.
+    unsubs.push(onSnapshot(doc(db, "stats", "global"), (s) => {
+      const d = s.data() || {};
+      $("tDownloads").textContent = fmt(d.downloads); $("tAudio").textContent = fmt(d.audio); $("tVideo").textContent = fmt(d.video);
+    }, (e) => { $("tDownloads").textContent = "–"; }));
+
+    unsubs.push(onSnapshot(doc(db, "announcements", "current"), (s) => {
+      const d = s.data();
+      $("annState").textContent = d && d.active ? "Live now: " + d.message.slice(0, 60) + (d.message.length > 60 ? "…" : "") : "No active announcement";
+    }));
+
+    unsubs.push(onSnapshot(query(collection(db, "reports"), orderBy("createdAt", "desc")), (snap) => {
+      reports = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      render();
+    }, (e) => {
+      $("reports").textContent = "";
+      const p = document.createElement("p"); p.className = "err";
+      p.textContent = "Could not load reports: " + e.message + " (is this the admin account, and are the rules deployed?)";
+      $("reports").appendChild(p);
+    }));
+  }
+
+  function render() {
+    const count = (s) => reports.filter((r) => r.status === s).length;
+    $("tPending").textContent = count("Pending"); $("tProgress").textContent = count("In Progress"); $("tResolved").textContent = count("Resolved");
+
+    const tabs = $("tabs"); tabs.textContent = "";
+    ["All", ...STATUSES].forEach((t) => {
+      const b = document.createElement("button");
+      b.textContent = t + (t === "All" ? " (" + reports.length + ")" : " (" + count(t) + ")");
+      if (t === filter) b.className = "on";
+      b.onclick = () => { filter = t; render(); };
+      tabs.appendChild(b);
+    });
+
+    const list = $("reports"); list.textContent = "";
+    const shown = reports.filter((r) => filter === "All" || r.status === filter);
+    if (!shown.length) { const p = document.createElement("p"); p.className = "muted"; p.textContent = "No reports here."; list.appendChild(p); return; }
+    shown.forEach((r) => {
+      const box = document.createElement("div"); box.className = "report";
+      const top = document.createElement("div"); top.className = "top";
+      const left = document.createElement("div");
+      const cat = document.createElement("span"); cat.className = "cat"; cat.textContent = r.category;
+      const who = document.createElement("span"); who.className = "who"; who.textContent = "  ·  " + r.name;
+      left.append(cat, who);
+      const right = document.createElement("div"); right.className = "row";
+      const badge = document.createElement("span"); badge.className = "badge " + String(r.status).replace(" ", ""); badge.textContent = r.status;
+      const sel = document.createElement("select");
+      STATUSES.forEach((s) => { const o = document.createElement("option"); o.value = s; o.textContent = s; if (s === r.status) o.selected = true; sel.appendChild(o); });
+      sel.onchange = () => updateDoc(doc(db, "reports", r.id), { status: sel.value }).catch((e) => alert("Could not update: " + e.message));
+      right.append(badge, sel);
+      top.append(left, right);
+      const desc = document.createElement("div"); desc.className = "desc"; desc.textContent = r.details || "(no details)";
+      const meta = document.createElement("div"); meta.className = "muted";
+      const when = r.createdAt && r.createdAt.toDate ? r.createdAt.toDate().toLocaleString() : "";
+      meta.textContent = [when, r.appVersion ? "v" + r.appVersion : "", r.device || ""].filter(Boolean).join("  ·  ");
+      box.append(top, desc, meta);
+      list.appendChild(box);
+    });
+  }
+
+  $("annSend").onclick = async () => {
+    const message = $("annMessage").value.trim();
+    if (!message) { $("annState").textContent = "Write a message first."; return; }
+    $("annSend").disabled = true;
+    try {
+      await setDoc(doc(db, "announcements", "current"), {
+        active: true, title: "What's new", message, showUpdate: $("annUpdate").checked, updatedAt: serverTimestamp()
+      });
+      $("annMessage").value = "";
+      $("annState").innerHTML = '<span class="ok">Sent. Users will see it the next time the app checks.</span>';
+    } catch (e) { $("annState").innerHTML = ""; const s = document.createElement("span"); s.className = "err"; s.textContent = e.message; $("annState").appendChild(s); }
+    $("annSend").disabled = false;
+  };
+  $("annClear").onclick = async () => {
+    try { await setDoc(doc(db, "announcements", "current"), { active: false, title: "", message: "", showUpdate: false, updatedAt: serverTimestamp() }); }
+    catch (e) { $("annState").textContent = e.message; }
+  };
+</script>
+</body>
+</html>
