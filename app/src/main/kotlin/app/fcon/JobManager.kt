@@ -129,6 +129,7 @@ object JobManager {
                 ?.filter { it.isFile && it.extension.lowercase() in MEDIA_EXTS && !INTERMEDIATE.containsMatchIn(it.nameWithoutExtension) }
                 ?.maxByOrNull { it.length() }
                 ?: throw IllegalStateException("Output file not created")
+            if (!isVideo && ext == "mp3") Cover.attach(ctx, out)
 
             Timing.log(
                 ctx,
@@ -179,6 +180,11 @@ object JobManager {
                     "/bestvideo[height<=$resolution]+bestaudio/best[height<=$resolution]/best",
             )
             req.addOption("--merge-output-format", ext)
+            // Each video's own thumbnail as its cover picture.
+            if (ext == "mp4") {
+                req.addOption("--embed-thumbnail")
+                req.addOption("--convert-thumbnails", "jpg")
+            }
         } else {
             req.addOption("-x")
             req.addOption("--audio-format", ext)

@@ -20,7 +20,7 @@ android {
         minSdk = 29
         targetSdk = 34
         // Pass -PappVersion=1.2.3 to build another version. versionCode grows with it, which Android needs for updates.
-        val appVersion = (findProperty("appVersion") as String?) ?: "1.0.4"
+        val appVersion = (findProperty("appVersion") as String?) ?: "1.0.5"
         val parts = appVersion.split(".").map { it.toInt() }
         versionName = appVersion
         versionCode = parts[0] * 10000 + parts[1] * 100 + parts[2]
