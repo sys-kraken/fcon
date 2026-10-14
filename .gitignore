@@ -8,3 +8,4 @@ keystore.properties
 .idea/
 *.apk
 .kotlin/
+admin/.firebase/
