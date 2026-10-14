@@ -325,17 +325,17 @@ patch(
       border-radius: 10px; color: var(--text); font-family: inherit; font-size: 13px; resize: vertical; min-height: 64px; }
     .rep-text:focus { outline: none; border-color: var(--gold); }
     #reportBox .upd-msg { margin-bottom: 8px; }
-    .ann-card { width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 8px 6px 8px 12px; border: 1px solid rgba(232,176,75,0.4);
+    .ann-card { width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 10px; margin: 0 0 6px; padding: 6px 4px 6px 12px; border: 1px solid rgba(232,176,75,0.4);
       border-radius: 10px; background: rgba(232,176,75,0.08); }
     .ann-card[hidden] { display: none; }
     .ann-body { flex: 1; min-width: 0; }
-    .ann-title { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
-    .ann-msg { font-size: 12.5px; line-height: 1.35; color: var(--text); white-space: pre-wrap; word-break: break-word; }
-    .ann-btn { width: auto; flex-shrink: 0; margin: 0; padding: 7px 14px; font-size: 10.5px; }
+    .ann-title { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--gold); margin-bottom: 1px; }
+    .ann-msg { font-size: 11.5px; line-height: 1.3; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+    .ann-btn { width: auto; flex-shrink: 0; margin: 0; padding: 5px 11px; font-size: 9.5px; border-radius: 8px; }
     .ann-btn[hidden] { display: none; }
-    .ann-status { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .ann-status { font-size: 10px; color: var(--muted); margin-top: 3px; }
     .ann-status:empty { display: none; }
-    .ann-x { flex-shrink: 0; align-self: flex-start; width: 26px; height: 26px; border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+    .ann-x { flex-shrink: 0; align-self: flex-start; width: 24px; height: 24px; border: 0; background: transparent; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
   </style>
 </head>`,
 );
