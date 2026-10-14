@@ -79,6 +79,7 @@ object JobManager {
                 null // the normal run below will hit the same problem and report the real error
             }
             var clock = PhaseClock()
+            var cookieCopy: File? = null
 
             fun attempt() {
                 Engine.lock.readLock().lock()
@@ -86,6 +87,7 @@ object JobManager {
                     dir.listFiles()?.forEach { it.deleteRecursively() }
                     job.progress = 0f
                     val req = buildRequest(ctx, url, info, dir, ext, isVideo, quality, resolution, start, end)
+                    cookieCopy = Cookies.apply(ctx, req, url)
                     clock = PhaseClock()
                     YoutubeDL.getInstance().execute(req, job.id) { p, _, line ->
                         clock.onLine(line)
@@ -96,6 +98,8 @@ object JobManager {
                     }
                     clock.finish()
                 } finally {
+                    cookieCopy?.delete()
+                    cookieCopy = null
                     Engine.lock.readLock().unlock()
                 }
             }

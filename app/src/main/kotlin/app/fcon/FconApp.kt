@@ -7,5 +7,6 @@ class FconApp : Application() {
         super.onCreate()
         ConversionService.createChannel(this)
         Engine.start(this)
+        Cookies.refreshAsync(this)
     }
 }

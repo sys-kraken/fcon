@@ -70,7 +70,12 @@ object InfoCache {
             req.addOption("--dump-json")
             if (!full && !Debug.flag(ctx, "nofast")) req.addOption("--extractor-args", FAST_ARGS)
             Engine.applyCommon(ctx, req)
-            val out = YoutubeDL.getInstance().execute(req, null, null).out.trim()
+            val cookieCopy = Cookies.apply(ctx, req, url)
+            val out = try {
+                YoutubeDL.getInstance().execute(req, null, null).out.trim()
+            } finally {
+                cookieCopy?.delete()
+            }
             val line = out.lineSequence().lastOrNull { it.startsWith("{") }
                 ?: throw IllegalStateException("The site returned no video information")
             val json = JSONObject(line)
