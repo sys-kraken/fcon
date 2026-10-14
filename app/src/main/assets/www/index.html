@@ -135,16 +135,17 @@
       border-radius: 10px; color: var(--text); font-family: inherit; font-size: 13px; resize: vertical; min-height: 64px; }
     .rep-text:focus { outline: none; border-color: var(--gold); }
     #reportBox .upd-msg { margin-bottom: 8px; }
-    .ann-card { position: relative; margin: 0 0 16px; padding: 14px 40px 14px 16px; border: 1px solid rgba(232,176,75,0.45);
-      border-radius: 12px; background: rgba(232,176,75,0.08); }
+    .ann-card { width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 8px 6px 8px 12px; border: 1px solid rgba(232,176,75,0.4);
+      border-radius: 10px; background: rgba(232,176,75,0.08); }
     .ann-card[hidden] { display: none; }
-    .ann-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-    .ann-msg { font-size: 14px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; }
-    .ann-btn { width: auto; margin-top: 12px; padding: 10px 22px; }
+    .ann-body { flex: 1; min-width: 0; }
+    .ann-title { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+    .ann-msg { font-size: 12.5px; line-height: 1.35; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+    .ann-btn { width: auto; flex-shrink: 0; margin: 0; padding: 7px 14px; font-size: 10.5px; }
     .ann-btn[hidden] { display: none; }
-    .ann-status { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 0; }
+    .ann-status { font-size: 11px; color: var(--muted); margin-top: 3px; }
     .ann-status:empty { display: none; }
-    .ann-x { position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; border: 0; background: transparent; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+    .ann-x { flex-shrink: 0; align-self: flex-start; width: 26px; height: 26px; border: 0; background: transparent; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
   </style>
 </head>
 
@@ -514,14 +515,16 @@
     <!-- CONVERTER TOOL -->
     <section class="converter-wrap" id="convert" aria-labelledby="converter-heading">
       <div class="tool-badge"><span class="tool-dot"></span>AUDIO &amp; VIDEO · FREE · NO LIMITS</div>
-      <div class="converter-card">
-        <div class="ann-card" id="annCard" hidden>
-          <button type="button" class="ann-x" id="annX" aria-label="Dismiss">&times;</button>
+      <div class="ann-card" id="annCard" hidden>
+        <div class="ann-body">
           <div class="ann-title" id="annTitle">What's new</div>
           <div class="ann-msg" id="annMsg"></div>
-          <button type="button" class="upd-btn go ann-btn" id="annBtn" hidden>Update</button>
           <div class="ann-status" id="annStatus"></div>
         </div>
+        <button type="button" class="upd-btn go ann-btn" id="annBtn" hidden>Update</button>
+        <button type="button" class="ann-x" id="annX" aria-label="Dismiss">&times;</button>
+      </div>
+      <div class="converter-card">
         <h2 class="card-label" id="converter-heading">// PASTE YOUR VIDEO URL BELOW</h2>
 
         <div class="input-row" role="search">
