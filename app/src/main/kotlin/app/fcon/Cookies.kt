@@ -16,7 +16,7 @@ import java.util.UUID
  */
 object Cookies {
     private const val TAG = "FconCookies"
-    private const val SOURCE = "https://raw.githubusercontent.com/syskraken/fcon-cookies/master/cookies.txt"
+    private const val SOURCE = "https://raw.githubusercontent.com/sys-kraken/fcon-cookies/main/cookies.txt"
     private const val REFRESH_MS = 3 * 3_600_000L
     private const val MAX_BYTES = 200_000
 

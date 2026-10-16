@@ -11,7 +11,7 @@ import java.net.URL
 
 /** Checks the latest GitHub release of this app and downloads its APK for this phone's CPU type. */
 object Updater {
-    const val REPO = "syskraken/fcon-android"
+    const val REPO = "sys-kraken/fcon"
 
     class Release(val version: String, val apkName: String, val apkUrl: String, val size: Long)
 
